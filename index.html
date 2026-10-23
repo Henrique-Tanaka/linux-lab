@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistemas Operacionais: primeiros passos no Linux</title>
+    <meta
+      name="description"
+      content="Página educacional para aula introdutória de sistemas operacionais com foco em Linux: conceitos, diretórios, comandos, permissões e terminal simulado."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Sistemas Operacionais: primeiros passos no Linux" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="#apresentacao" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+          aria-controls="mainMenu"
+        >☰</button>
+        <ul class="menu" id="mainMenu">
+          <li><a href="#sistema-operacional">Sistema operacional</a></li>
+          <li><a href="#linux">Linux</a></li>
+          <li><a href="#arquivos">Arquivos</a></li>
+          <li><a href="#comandos">Comandos</a></li>
+          <li><a href="#usuarios">Permissões</a></li>
+          <li><a href="#pratique">Pratique</a></li>
+          <li><a href="#carreira">Carreira</a></li>
+          <li><a href="#glossario">Glossário</a></li>
+        </ul>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="apresentacao" class="section hero">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Aula 1 · Fundamentos de Linux</p>
+            <h1>Sistemas Operacionais: primeiros passos no Linux</h1>
+            <p class="lead">
+              Nesta aula, você entenderá como um sistema operacional organiza recursos,
+              facilita a comunicação entre pessoas, programas e hardware e prepara o caminho
+              para explorar o terminal com autonomia.
+            </p>
+
+            <div class="learning-goals">
+              <h2>Objetivos de aprendizagem</h2>
+              <ul>
+                <li>Entender o papel do sistema operacional.</li>
+                <li>Conhecer a origem, a estrutura e as distribuições do Linux.</li>
+                <li>Navegar por diretórios e usar os comandos básicos do terminal.</li>
+                <li>Ler e alterar permissões de arquivos com <code>chmod</code>.</li>
+                <li>Aplicar tudo em um dia de trabalho simulado, no modo carreira.</li>
+              </ul>
+            </div>
+
+            <div class="cta-row">
+              <a href="#sistema-operacional" class="primary-btn" id="heroStart">Começar a aula</a>
+              <a href="#pratique" class="secondary-btn">Ir para prática</a>
+            </div>
+
+            <div class="course-progress-card">
+              <div class="course-progress-head">
+                <span class="goal-label">Progresso da aula</span>
+                <strong id="courseProgressPercent" class="course-progress-percent">0%</strong>
+              </div>
+              <div
+                id="courseProgressBar"
+                class="course-progress-track"
+                role="progressbar"
+                aria-label="Progresso da aula"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
+                <span id="courseProgressFill" class="course-progress-fill"></span>
+              </div>
+              <small id="courseProgressText">0 objetivos concluídos</small>
+              <a id="courseNextStep" class="course-next" href="#sistema-operacional">Começar a aula</a>
+              <details class="course-checklist">
+                <summary>Ver todos os objetivos</summary>
+                <ol id="courseChecklist"></ol>
+              </details>
+            </div>
+          </div>
+
+          <aside class="video-card" aria-label="Videoaula">
+            <div class="video-header">
+              <span class="dot dot-green" aria-hidden="true"></span>
+              <span>Videoaula: introdução ao Linux</span>
+            </div>
+            <div class="video-frame">
+              <video id="lessonVideo" controls preload="metadata" playsinline>
+                <source src="./gemini_generated_video_2f697187.mp4" type="video/mp4" />
+                Seu navegador não suporta vídeos HTML5.
+              </video>
+              <div id="videoFallback" class="video-fallback" hidden>
+                <span class="play-icon" aria-hidden="true">▶</span>
+                <p>
+                  O vídeo desta aula ainda não está disponível. Enquanto isso, siga o conteúdo
+                  abaixo: ele cobre todos os tópicos.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="modulos" class="section alt-bg" aria-labelledby="modulos-titulo">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Módulos da aula</p>
+            <h2 id="modulos-titulo">Estrutura da aula e progresso</h2>
+            <p class="section-intro">
+              Cada módulo tem objetivos: ler o conteúdo até o fim e praticar no terminal. O progresso só avança
+              quando você realmente cumpre cada objetivo, e fica salvo neste navegador.
+            </p>
+          </div>
+
+          <div class="module-grid">
+            <button type="button" class="module-card" data-module="sistema-operacional">
+              <span class="module-number">Módulo 1</span>
+              <h3>Sistema operacional</h3>
+              <p>O que é, para que serve e como ele conversa com o hardware.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card" data-module="linux">
+              <span class="module-number">Módulo 2</span>
+              <h3>Conhecendo o Linux</h3>
+              <p>História, software livre, kernel, shell e distribuições.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card" data-module="arquivos">
+              <span class="module-number">Módulo 3</span>
+              <h3>Arquivos e diretórios</h3>
+              <p>A árvore de pastas do Linux e os caminhos absolutos e relativos.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card" data-module="comandos">
+              <span class="module-number">Módulo 4</span>
+              <h3>Comandos do terminal</h3>
+              <p>Navegar, criar, copiar, mover e apagar, além de pedir ajuda ao sistema.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card" data-module="usuarios">
+              <span class="module-number">Módulo 5</span>
+              <h3>Usuários e permissões</h3>
+              <p>Dono, grupo e outros; <code>rwx</code>, <code>chmod</code> e <code>sudo</code>.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card" data-module="pratique">
+              <span class="module-number">Módulo 6</span>
+              <h3>Prática e revisão</h3>
+              <p>Atividade guiada, missões do dia a dia e quiz de revisão.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+
+            <button type="button" class="module-card module-card-game" data-module="carreira">
+              <span class="module-number">Módulo 7 · Jogo</span>
+              <h3>Modo carreira</h3>
+              <p>Viva um dia de trabalho na TechNova: cumpra tarefas, ganhe XP e suba de cargo.</p>
+              <span class="module-status">Próximo</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="sistema-operacional" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">1. Conceitos</p>
+            <h2>O que é um sistema operacional?</h2>
+          </div>
+
+          <div class="content-grid">
+            <div class="text-card">
+              <p>
+                O sistema operacional é o software principal que atua como intermediário entre
+                você, os programas e o hardware do computador. Sem ele, o processamento e a
+                interação com a máquina seriam muito mais difíceis.
+              </p>
+              <p>
+                Ele organiza tarefas, controla recursos e garante que cada programa receba o que
+                precisa para funcionar corretamente. Windows, macOS, Android e Linux são
+                exemplos de sistemas operacionais.
+              </p>
+            </div>
+
+            <div class="text-card">
+              <h3>Principais funções</h3>
+              <ul class="check-list">
+                <li><strong>Gerenciamento de processos:</strong> decide quando um programa executa.</li>
+                <li><strong>Gerenciamento de memória:</strong> reserva e distribui memória.</li>
+                <li><strong>Gerenciamento de arquivos:</strong> organiza dados em pastas e arquivos.</li>
+                <li><strong>Gerenciamento de dispositivos:</strong> controla teclado, mouse, disco e rede.</li>
+                <li><strong>Gerenciamento de usuários:</strong> define quem pode acessar o quê.</li>
+              </ul>
+            </div>
+          </div>
+
+          <figure class="diagram-card">
+            <h3>Diagrama simples</h3>
+            <ol class="diagram" aria-label="Fluxo de uma ação: do usuário até o hardware">
+              <li class="box user">Usuário</li>
+              <li class="box app">Aplicativos</li>
+              <li class="box os">Sistema Operacional</li>
+              <li class="box hw">Hardware</li>
+            </ol>
+            <figcaption class="diagram-caption">
+              O usuário solicita uma ação; o aplicativo pede ajuda ao sistema operacional,
+              que organiza o acesso ao hardware e entrega o resultado.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="linux" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">2. Conhecendo o Linux</p>
+            <h2>O que é Linux?</h2>
+          </div>
+
+          <div class="content-grid">
+            <div class="text-card">
+              <h3>Um pouco de história</h3>
+              <p>
+                Em <strong>1991</strong>, o estudante finlandês <strong>Linus Torvalds</strong> começou a
+                escrever, como um projeto pessoal, um <em>kernel</em> (núcleo) de sistema operacional.
+                Ele publicou o código na internet e pessoas do mundo todo passaram a contribuir.
+              </p>
+              <p>
+                Desde 1983, o <strong>Projeto GNU</strong>, iniciado por <strong>Richard Stallman</strong>,
+                desenvolvia ferramentas livres (compilador, shell, utilitários). O kernel Linux somado
+                às ferramentas GNU formou um sistema completo; por isso muita gente diz
+                <strong>GNU/Linux</strong>.
+              </p>
+            </div>
+
+            <div class="text-card">
+              <h3>Software livre e código aberto</h3>
+              <p>
+                O Linux é distribuído sob a licença <strong>GPL</strong>. Isso garante quatro liberdades a
+                qualquer pessoa:
+              </p>
+              <ul class="check-list">
+                <li><strong>Usar</strong> o programa para qualquer finalidade.</li>
+                <li><strong>Estudar</strong> como ele funciona, lendo o código-fonte.</li>
+                <li><strong>Modificar</strong> e adaptar às suas necessidades.</li>
+                <li><strong>Distribuir</strong> cópias, originais ou modificadas.</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3 class="block-title">Estrutura do Linux</h3>
+          <div class="linux-grid">
+            <div class="info-panel">
+              <h3>Kernel</h3>
+              <p>É o núcleo do sistema. Ele gerencia memória, processos, arquivos e dispositivos.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Distribuição</h3>
+              <p>É a combinação do kernel com ferramentas, programas e pacotes do sistema.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Interface gráfica</h3>
+              <p>É a camada visual para interagir com o sistema, como janelas e ícones.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Shell</h3>
+              <p>É o interpretador de comandos (como o <code>bash</code>), onde você digita ordens para o sistema.</p>
+            </div>
+          </div>
+
+          <h3 class="block-title">Distribuições populares</h3>
+          <div class="distribution-cards">
+            <article class="dist-card">
+              <h3>Ubuntu</h3>
+              <p>Focado em facilidade de uso e com ampla adoção em desktops e servidores.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Debian</h3>
+              <p>Conhecida pela estabilidade e confiabilidade; é a base do Ubuntu e de muitas outras.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Fedora</h3>
+              <p>Traz tecnologias novas rapidamente e é usada em ambientes de inovação e desenvolvimento.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Linux Mint</h3>
+              <p>Baseada no Ubuntu, tem visual familiar para quem está vindo do Windows.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Arch Linux</h3>
+              <p>Minimalista: você monta o sistema peça por peça. Ótima para aprender a fundo.</p>
+            </article>
+          </div>
+
+          <div class="use-cases">
+            <h3>Onde o Linux aparece?</h3>
+            <ul>
+              <li>Computadores pessoais e notebooks.</li>
+              <li>Servidores web e bancos de dados: a maior parte da internet roda em Linux.</li>
+              <li>Celulares Android, que usam o kernel Linux.</li>
+              <li>Dispositivos embarcados, roteadores e smart TVs.</li>
+              <li>Ambientes de desenvolvimento, nuvem e supercomputadores.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="arquivos" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">3. Organizando arquivos</p>
+            <h2>Arquivos e diretórios</h2>
+            <p class="section-intro">
+              No Linux tudo parte de um único ponto, a <strong>raiz</strong> (<code>/</code>). Não existe
+              “C:” ou “D:”: discos e pendrives aparecem como pastas dentro dessa árvore.
+            </p>
+          </div>
+
+          <div class="tree-card">
+            <pre aria-label="Estrutura de diretórios em Linux">/
+├── bin/
+├── boot/
+├── dev/
+├── etc/
+├── home/
+│   └── aluno/
+├── root/
+├── tmp/
+├── usr/
+└── var/
+</pre>
+          </div>
+
+          <div class="directory-grid">
+            <article class="dir-card">
+              <h3>/bin</h3>
+              <p>Programas essenciais do sistema, como <code>ls</code>, <code>cp</code> e <code>bash</code>.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/boot</h3>
+              <p>Arquivos usados para ligar o computador, incluindo o próprio kernel.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/dev</h3>
+              <p>Representa dispositivos (discos, USB, terminais) como se fossem arquivos.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/etc</h3>
+              <p>Armazena configurações do sistema e dos programas.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/home</h3>
+              <p>Local onde ficam as pastas pessoais dos usuários, como <code>/home/aluno</code>.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/root</h3>
+              <p>Pasta pessoal do administrador (root). Usuários comuns não têm acesso.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/tmp</h3>
+              <p>Arquivos temporários. Costuma ser esvaziado quando o sistema reinicia.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/usr</h3>
+              <p>Programas, bibliotecas e recursos instalados para os usuários.</p>
+            </article>
+            <article class="dir-card">
+              <h3>/var</h3>
+              <p>Arquivos que mudam com frequência, como logs (<code>/var/log</code>) e filas.</p>
+            </article>
+          </div>
+
+          <div class="paths-box">
+            <h3>Caminhos absolutos e relativos</h3>
+            <div class="path-row">
+              <div>
+                <h4>Absoluto</h4>
+                <p><code>/home/aluno/Documentos</code></p>
+                <small>Começa na raiz (<code>/</code>) e funciona de qualquer lugar.</small>
+              </div>
+              <div>
+                <h4>Relativo</h4>
+                <p><code>Documentos</code> ou <code>../Documentos</code></p>
+                <small>É definido a partir do diretório atual.</small>
+              </div>
+            </div>
+            <ul class="path-symbols">
+              <li><code>.</code> diretório atual</li>
+              <li><code>..</code> diretório “pai” (um nível acima)</li>
+              <li><code>~</code> sua pasta pessoal (<code>/home/aluno</code>)</li>
+            </ul>
+          </div>
+
+          <div class="case-note">
+            <h3>Maiúsculas e minúsculas fazem diferença</h3>
+            <p>
+              No Linux, <code>Arquivo.txt</code> e <code>arquivo.txt</code> são nomes diferentes.
+              Por isso, atenção à digitação dos nomes e comandos. Arquivos que começam com ponto,
+              como <code>.bashrc</code>, ficam <strong>ocultos</strong> e só aparecem com <code>ls -a</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="comandos" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">4. Primeiros passos</p>
+            <h2>Comandos básicos do terminal</h2>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <caption class="visually-hidden">Comandos básicos, finalidade e exemplo de uso</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Comando</th>
+                  <th scope="col">Finalidade</th>
+                  <th scope="col">Exemplo</th>
+                  <th scope="col">Copiar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>pwd</code></td>
+                  <td>Mostra o diretório atual.</td>
+                  <td><code>pwd</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="pwd">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>ls</code></td>
+                  <td>Lista arquivos e pastas (<code>-l</code> detalha, <code>-a</code> mostra ocultos).</td>
+                  <td><code>ls -l</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="ls -l">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cd</code></td>
+                  <td>Muda de diretório.</td>
+                  <td><code>cd /home/aluno</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cd /home/aluno">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>mkdir</code></td>
+                  <td>Cria uma nova pasta.</td>
+                  <td><code>mkdir estudos</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="mkdir estudos">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>touch</code></td>
+                  <td>Cria um arquivo vazio.</td>
+                  <td><code>touch resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="touch resumo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>echo</code></td>
+                  <td>Mostra um texto; com <code>&gt;</code> grava o texto em um arquivo.</td>
+                  <td><code>echo "Linux" &gt; resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy='echo "Linux" > resumo.txt'>Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cat</code></td>
+                  <td>Exibe o conteúdo de um arquivo.</td>
+                  <td><code>cat resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cat resumo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cp</code></td>
+                  <td>Copia arquivos (<code>-r</code> para pastas).</td>
+                  <td><code>cp resumo.txt resumo-copia.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cp resumo.txt resumo-copia.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>mv</code></td>
+                  <td>Move ou renomeia arquivos.</td>
+                  <td><code>mv resumo.txt novo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="mv resumo.txt novo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>rm</code></td>
+                  <td>Apaga arquivos (<code>-r</code> apaga pastas com conteúdo). Não há lixeira!</td>
+                  <td><code>rm novo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="rm novo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>rmdir</code></td>
+                  <td>Apaga uma pasta vazia.</td>
+                  <td><code>rmdir estudos</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="rmdir estudos">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>man</code></td>
+                  <td>Abre o manual de um comando.</td>
+                  <td><code>man ls</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="man ls">Copiar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content-grid tips-grid">
+            <div class="explain-box">
+              <h3>Entendendo cada parte do comando</h3>
+              <p>
+                Um comando costuma ter três partes: <strong>comando</strong>, <strong>opções</strong> e
+                <strong>argumentos</strong>. Em <code>ls -l /etc</code>, <code>ls</code> é o comando,
+                <code>-l</code> é a opção (mostrar detalhes) e <code>/etc</code> é o argumento (onde listar).
+              </p>
+              <p>
+                Já em <code>cp resumo.txt resumo-copia.txt</code>, o sistema copia o arquivo de
+                origem (primeiro argumento) para o destino (segundo argumento).
+              </p>
+            </div>
+
+            <div class="explain-box">
+              <h3>Atalhos e ajuda</h3>
+              <ul class="shortcut-list">
+                <li><kbd>Tab</kbd> completa nomes de comandos, pastas e arquivos.</li>
+                <li><kbd>↑</kbd> <kbd>↓</kbd> navegam pelos comandos já digitados.</li>
+                <li><code>man comando</code> abre o manual completo.</li>
+                <li><code>comando --help</code> mostra um resumo rápido de uso.</li>
+                <li><code>clear</code> limpa a tela do terminal.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="terminal-slot" data-terminal-slot="comandos">
+            <div class="terminal-placeholder">
+              <p>O terminal está aberto em outra seção da página.</p>
+              <button type="button" class="mini-btn" data-mount-terminal="comandos">Trazer o terminal para cá</button>
+            </div>
+
+            <div id="terminalCard" class="terminal-card" role="region" aria-label="Terminal simulado">
+              <div class="terminal-head">
+                <span class="terminal-label">Terminal simulado</span>
+                <span class="terminal-status">digite <strong>help</strong> para começar</span>
+              </div>
+              <div id="terminalOutput" class="terminal-output" role="log" aria-live="polite">
+                <div class="terminal-line">Bem-vindo ao terminal simulado do Linux.</div>
+                <div class="terminal-line is-hint">Dica: digite help para ver os comandos. Tab completa nomes e ↑ repete comandos.</div>
+              </div>
+              <form id="terminalForm" class="terminal-form">
+                <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@linux:~$</label>
+                <input
+                  id="terminalInput"
+                  type="text"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  enterkeyhint="send"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="usuarios" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">5. Usuários e permissões</p>
+            <h2>Quem pode fazer o quê?</h2>
+          </div>
+
+          <div class="permission-grid">
+            <div class="permission-card">
+              <h3>Usuário comum</h3>
+              <p>
+                Tem acesso à própria pasta pessoal (<code>~</code>) e a <code>/tmp</code>. Pode ler boa parte do
+                sistema, mas não alterar arquivos de outros usuários nem configurações.
+              </p>
+            </div>
+            <div class="permission-card">
+              <h3>Administrador (root)</h3>
+              <p>
+                O usuário <em>root</em> pode tudo: alterar configurações, instalar programas e apagar
+                qualquer arquivo. Por isso, não se trabalha logado como root no dia a dia.
+              </p>
+            </div>
+          </div>
+
+          <div class="text-card sudo-card">
+            <h3><code>sudo</code>: agir como administrador só quando precisar</h3>
+            <p>
+              Colocar <code>sudo</code> antes de um comando o executa com poderes de root, por exemplo
+              <code>sudo apt update</code> para atualizar a lista de programas. O sistema pede a
+              <strong>sua</strong> senha e registra o uso. Use com cuidado: um comando errado com
+              <code>sudo</code> pode danificar o sistema.
+            </p>
+          </div>
+
+          <div class="access-table">
+            <div class="perm-boxes" aria-hidden="true">
+              <span class="perm">r</span>
+              <span class="perm">w</span>
+              <span class="perm">x</span>
+            </div>
+            <dl class="perm-legend">
+              <div><dt>r = leitura</dt><dd>Arquivo: ver o conteúdo. Pasta: listar o que tem dentro.</dd></div>
+              <div><dt>w = escrita</dt><dd>Arquivo: alterar. Pasta: criar, renomear e apagar itens.</dd></div>
+              <div><dt>x = execução</dt><dd>Arquivo: rodar como programa. Pasta: entrar nela (<code>cd</code>).</dd></div>
+            </dl>
+          </div>
+
+          <div class="ls-breakdown text-card">
+            <h3>Lendo a saída de <code>ls -l</code></h3>
+            <p>Cada linha do <code>ls -l</code> mostra as permissões em três grupos de três letras:</p>
+            <pre class="ls-line" aria-label="Exemplo: -rwxr-xr-- 1 aluno aluno 52 out 23 10:00 script.sh"><span class="seg seg-type">-</span><span class="seg seg-owner">rwx</span><span class="seg seg-group">r-x</span><span class="seg seg-other">r--</span> 1 <span class="seg seg-user">aluno</span> <span class="seg seg-grp">aluno</span> 52 out 23 10:00 <span class="seg seg-name">script.sh</span></pre>
+            <ul class="ls-legend">
+              <li><span class="swatch seg-type">-</span> Tipo: <code>-</code> arquivo, <code>d</code> diretório.</li>
+              <li><span class="swatch seg-owner">rwx</span> <strong>Dono</strong>: pode ler, escrever e executar.</li>
+              <li><span class="swatch seg-group">r-x</span> <strong>Grupo</strong>: pode ler e executar.</li>
+              <li><span class="swatch seg-other">r--</span> <strong>Outros</strong>: só podem ler.</li>
+              <li><span class="swatch seg-user">aluno</span> <span class="swatch seg-grp">aluno</span> Usuário dono e grupo dono.</li>
+            </ul>
+            <p class="ls-note">O traço (<code>-</code>) significa “permissão ausente”.</p>
+          </div>
+
+          <div class="permission-example text-card">
+            <p>Se um arquivo tiver permissão <code>rw-r--r--</code>, isso significa:</p>
+            <ul>
+              <li><code>rw-</code>: o <strong>dono</strong> pode ler e escrever.</li>
+              <li><code>r--</code>: o <strong>grupo</strong> pode apenas ler.</li>
+              <li><code>r--</code>: <strong>outros</strong> também podem apenas ler.</li>
+            </ul>
+          </div>
+
+          <div class="octal-box text-card">
+            <h3>Permissões em números: o comando <code>chmod</code></h3>
+            <p>
+              O <code>chmod</code> muda as permissões. A forma numérica soma valores para cada grupo:
+              <strong>r = 4</strong>, <strong>w = 2</strong>, <strong>x = 1</strong>. Por exemplo,
+              <code>rwx</code> = 4 + 2 + 1 = <strong>7</strong> e <code>r-x</code> = 4 + 0 + 1 = <strong>5</strong>.
+            </p>
+            <div class="octal-examples">
+              <div><code>chmod 644 arquivo</code><span><code>rw-r--r--</code>: padrão para documentos.</span></div>
+              <div><code>chmod 755 script.sh</code><span><code>rwxr-xr-x</code>: programas e scripts.</span></div>
+              <div><code>chmod 600 senha.txt</code><span><code>rw-------</code>: só o dono acessa.</span></div>
+              <div><code>chmod +x script.sh</code><span>Forma simbólica: adiciona execução.</span></div>
+            </div>
+          </div>
+
+          <div id="permBuilder" class="perm-builder text-card">
+            <h3>Monte a permissão</h3>
+            <p>Marque o que cada grupo pode fazer e veja o resultado em letras, em número e como comando.</p>
+            <div class="perm-builder-layout">
+              <table class="perm-builder-table">
+                <caption class="visually-hidden">Escolha das permissões por grupo</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Quem</th>
+                    <th scope="col">Ler (r)</th>
+                    <th scope="col">Escrever (w)</th>
+                    <th scope="col">Executar (x)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Dono</th>
+                    <td><input type="checkbox" data-who="0" data-perm="r" aria-label="Dono pode ler" checked /></td>
+                    <td><input type="checkbox" data-who="0" data-perm="w" aria-label="Dono pode escrever" checked /></td>
+                    <td><input type="checkbox" data-who="0" data-perm="x" aria-label="Dono pode executar" /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Grupo</th>
+                    <td><input type="checkbox" data-who="1" data-perm="r" aria-label="Grupo pode ler" checked /></td>
+                    <td><input type="checkbox" data-who="1" data-perm="w" aria-label="Grupo pode escrever" /></td>
+                    <td><input type="checkbox" data-who="1" data-perm="x" aria-label="Grupo pode executar" /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Outros</th>
+                    <td><input type="checkbox" data-who="2" data-perm="r" aria-label="Outros podem ler" checked /></td>
+                    <td><input type="checkbox" data-who="2" data-perm="w" aria-label="Outros podem escrever" /></td>
+                    <td><input type="checkbox" data-who="2" data-perm="x" aria-label="Outros podem executar" /></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="perm-result" aria-live="polite">
+                <div><span class="goal-label">Letras</span><code id="permSymbolic">rw-r--r--</code></div>
+                <div><span class="goal-label">Número</span><code id="permOctal">644</code></div>
+                <div><span class="goal-label">Comando</span><code id="permCommand">chmod 644 arquivo.txt</code></div>
+                <p id="permExplain" class="perm-explain"></p>
+              </div>
+            </div>
+            <div class="activity-actions">
+              <span class="goal-label preset-label">Exemplos:</span>
+              <button type="button" class="mini-btn" data-preset="644">644</button>
+              <button type="button" class="mini-btn" data-preset="755">755</button>
+              <button type="button" class="mini-btn" data-preset="600">600</button>
+              <button type="button" class="mini-btn" data-preset="777">777</button>
+            </div>
+          </div>
+
+          <div class="activity-box">
+            <h3>Experimente no terminal</h3>
+            <p>
+              Na sua pasta pessoal existe um <code>script.sh</code> <strong>sem</strong> permissão de execução.
+              Rode os comandos em ordem e observe o que muda:
+            </p>
+            <div class="activity-actions">
+              <button class="mini-btn" type="button" data-command="ls -l ~">1. ls -l ~</button>
+              <button class="mini-btn" type="button" data-command="~/script.sh">2. Executar o script</button>
+              <button class="mini-btn" type="button" data-command="chmod +x ~/script.sh">3. chmod +x ~/script.sh</button>
+              <button class="mini-btn" type="button" data-command="~/script.sh">4. Executar de novo</button>
+              <button class="mini-btn" type="button" data-command="cd /root">5. Tentar entrar em /root</button>
+            </div>
+          </div>
+
+          <div class="terminal-slot is-empty" data-terminal-slot="usuarios">
+            <div class="terminal-placeholder">
+              <p>O terminal está aberto em outra seção da página.</p>
+              <button type="button" class="mini-btn" data-mount-terminal="usuarios">Trazer o terminal para cá</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pratique" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">6. Pratique e revise</p>
+            <h2>Atividade guiada</h2>
+          </div>
+
+          <div class="activity-box">
+            <h3>Vamos criar uma pasta de estudos</h3>
+            <div class="activity-meta">
+              <div class="goal-box">
+                <span class="goal-label">Objetivo da etapa</span>
+                <p>
+                  Organizar um ambiente de estudos e validar os comandos básicos do Linux em uma
+                  sequência realista. Digite os comandos no terminal ou use os botões.
+                </p>
+              </div>
+              <div class="progress-box">
+                <span class="goal-label">Progresso da prática</span>
+                <div class="step-list" aria-live="polite">
+                  <span class="step-item" data-step="0">1. Criar pasta</span>
+                  <span class="step-item" data-step="1">2. Arquivo</span>
+                  <span class="step-item" data-step="2">3. Listar</span>
+                  <span class="step-item" data-step="3">4. Copiar</span>
+                </div>
+              </div>
+            </div>
+
+            <ol class="activity-steps">
+              <li>Na sua pasta pessoal, crie uma pasta chamada <code>estudos</code>.</li>
+              <li>Dentro dela, crie um arquivo chamado <code>resumo.txt</code>.</li>
+              <li>Liste o conteúdo da pasta <code>estudos</code>.</li>
+              <li>Copie o arquivo para <code>estudos/resumo-copia.txt</code>.</li>
+            </ol>
+            <div class="activity-actions">
+              <button class="mini-btn" type="button" data-command="mkdir ~/estudos">Executar 1</button>
+              <button class="mini-btn" type="button" data-command="touch ~/estudos/resumo.txt">Executar 2</button>
+              <button class="mini-btn" type="button" data-command="ls ~/estudos">Executar 3</button>
+              <button class="mini-btn" type="button" data-command="cp ~/estudos/resumo.txt ~/estudos/resumo-copia.txt">Executar 4</button>
+              <button class="mini-btn reset-btn" type="button" data-command="reset">Resetar ambiente</button>
+            </div>
+          </div>
+
+          <div class="terminal-slot is-empty" data-terminal-slot="pratique">
+            <div class="terminal-placeholder">
+              <p>O terminal está aberto em outra seção da página.</p>
+              <button type="button" class="mini-btn" data-mount-terminal="pratique">Trazer o terminal para cá</button>
+            </div>
+          </div>
+
+          <div class="mission-panel">
+            <h3>Desafios reais do terminal</h3>
+            <p>
+              Agora você vai agir como um profissional de TI em situações reais: organizar pastas,
+              registrar arquivos, listar informações e preparar backups usando comandos do Linux.
+            </p>
+          </div>
+
+          <div class="scenario-grid">
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 1</p>
+              <h3>Loja de e-commerce</h3>
+              <p class="scenario-goal">Objetivo: organizar o estoque e preparar o fechamento diário.</p>
+              <ul>
+                <li>Criar pastas para produtos e vendas.</li>
+                <li>Registrar o arquivo de estoque do dia.</li>
+                <li>Listar e conferir os dados antes do relatório.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="ecommerce">Executar desafio</button>
+            </article>
+
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 2</p>
+              <h3>Empresa de suporte</h3>
+              <p class="scenario-goal">Objetivo: separar chamados por status e manter registros.</p>
+              <ul>
+                <li>Criar pastas por status de atendimento.</li>
+                <li>Registrar um novo chamado de cliente.</li>
+                <li>Conferir a lista final do suporte.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="support">Executar desafio</button>
+            </article>
+
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 3</p>
+              <h3>Departamento financeiro</h3>
+              <p class="scenario-goal">Objetivo: manter backups de documentos e relatórios mensais.</p>
+              <ul>
+                <li>Criar estrutura por ano e mês.</li>
+                <li>Salvar o arquivo de contas.</li>
+                <li>Duplicar o arquivo para backup e conferir as permissões.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="finance">Executar desafio</button>
+            </article>
+          </div>
+
+          <div class="reference-section">
+            <div class="reference-grid">
+              <article class="reference-card">
+                <span class="reference-label">Checklist</span>
+                <h3>Comandos essenciais</h3>
+                <ul>
+                  <li><code>pwd</code>: onde você está</li>
+                  <li><code>ls</code>: lista conteúdos</li>
+                  <li><code>cd</code>: muda de pasta</li>
+                  <li><code>mkdir</code>: cria pastas</li>
+                  <li><code>touch</code>: cria arquivos</li>
+                  <li><code>chmod</code>: muda permissões</li>
+                </ul>
+              </article>
+
+              <article class="reference-card">
+                <span class="reference-label">Resumo</span>
+                <h3>O que aprender</h3>
+                <ul>
+                  <li>Entender diretórios</li>
+                  <li>Organizar arquivos</li>
+                  <li>Ler e alterar permissões</li>
+                  <li>Aplicar comandos no dia a dia</li>
+                </ul>
+              </article>
+
+              <article class="reference-card">
+                <span class="reference-label">Dica</span>
+                <h3>Próximo passo</h3>
+                <ul>
+                  <li>Treine os comandos</li>
+                  <li>Repita os desafios</li>
+                  <li>Consulte o <code>man</code> dos comandos</li>
+                  <li>Crie sua própria pasta de estudos</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="quiz-section">
+            <h3>Questões de revisão</h3>
+            <div id="quizContainer" class="quiz-container"></div>
+          </div>
+
+          <div class="summary-box">
+            <h3>O que você aprendeu?</h3>
+            <ul>
+              <li>O sistema operacional coordena o uso dos recursos do computador.</li>
+              <li>O Linux nasceu em 1991, é software livre e tem várias distribuições.</li>
+              <li>Tudo no Linux parte da raiz <code>/</code>, organizada em diretórios com funções definidas.</li>
+              <li>Comandos simples ajudam a navegar, criar, copiar, mover e apagar arquivos.</li>
+              <li>Permissões (<code>rwx</code> para dono, grupo e outros) definem quem pode acessar ou alterar dados.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="carreira" class="section career-section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">7. Modo carreira</p>
+            <h2>Seu primeiro dia na TechNova</h2>
+            <p class="section-intro">
+              Você acaba de ser contratado(a) como estagiário(a) de TI na TechNova, uma empresa fictícia.
+              Siga as orientações da coordenação, resolva cada tarefa no terminal e acompanhe seu crescimento:
+              cada acerto vale XP, você sobe de cargo e desbloqueia conquistas.
+            </p>
+          </div>
+
+          <div class="career-hud">
+            <div class="career-rank">
+              <span class="career-rank-icon" id="careerRankIcon" aria-hidden="true">🎒</span>
+              <div>
+                <span class="goal-label">Seu cargo</span>
+                <p class="career-rank-title" id="careerRankTitle">Estagiário(a) de TI</p>
+              </div>
+            </div>
+            <div class="career-xp">
+              <div class="career-xp-top">
+                <strong id="careerXp">0 XP</strong>
+                <span id="careerNextRank">Faltam 100 XP para Assistente de TI</span>
+              </div>
+              <div
+                id="careerXpBar"
+                class="career-xp-track"
+                role="progressbar"
+                aria-label="Progresso até o próximo cargo"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
+                <span id="careerXpFill" class="career-xp-fill"></span>
+              </div>
+            </div>
+            <div class="career-stats">
+              <div><strong id="careerTasks">0/20</strong><span>tarefas</span></div>
+              <div><strong id="careerBadgeCount">0/8</strong><span>conquistas</span></div>
+            </div>
+          </div>
+
+          <ol class="career-timeline" id="careerTimeline" aria-label="Etapas do expediente"></ol>
+
+          <div class="career-board">
+            <div class="career-mission" id="careerMission"></div>
+
+            <div class="terminal-slot is-empty" data-terminal-slot="carreira">
+              <div class="terminal-placeholder">
+                <p>O terminal está aberto em outra seção da página.</p>
+                <button type="button" class="mini-btn" data-mount-terminal="carreira">Trazer o terminal para cá</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="career-ranks-badges">
+            <div>
+              <h3 class="block-title">Plano de carreira</h3>
+              <ol class="rank-ladder">
+                <li><span aria-hidden="true">🎒</span> Estagiário(a) de TI <small>0 XP</small></li>
+                <li><span aria-hidden="true">🧰</span> Assistente de TI <small>100 XP</small></li>
+                <li><span aria-hidden="true">🛠️</span> Técnico(a) de Suporte <small>250 XP</small></li>
+                <li><span aria-hidden="true">💻</span> Analista Júnior <small>400 XP</small></li>
+                <li><span aria-hidden="true">🏆</span> Sysadmin <small>550 XP</small></li>
+              </ol>
+            </div>
+            <div>
+              <h3 class="block-title">Conquistas</h3>
+              <ul class="badge-grid" id="careerBadges"></ul>
+            </div>
+          </div>
+
+          <div class="career-footer-actions">
+            <button type="button" class="link-btn" data-career-action="reset">Recomeçar o modo carreira</button>
+          </div>
+        </div>
+        <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+      </section>
+
+      <section id="glossario" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Consulta rápida</p>
+            <h2>Glossário</h2>
+          </div>
+
+          <dl class="glossary">
+            <div><dt>Kernel</dt><dd>Núcleo do sistema operacional; controla hardware, memória e processos.</dd></div>
+            <div><dt>Shell</dt><dd>Programa que interpreta os comandos digitados. O mais comum é o <code>bash</code>.</dd></div>
+            <div><dt>Terminal</dt><dd>Janela onde você conversa com o shell digitando comandos.</dd></div>
+            <div><dt>Prompt</dt><dd>Texto antes do cursor, como <code>aluno@linux:~$</code>: usuário, máquina e pasta atual.</dd></div>
+            <div><dt>Distribuição</dt><dd>Pacote completo de Linux: kernel + programas + instalador. Ex.: Ubuntu.</dd></div>
+            <div><dt>Diretório</dt><dd>O mesmo que pasta.</dd></div>
+            <div><dt>Raiz (<code>/</code>)</dt><dd>Diretório inicial de onde partem todos os outros.</dd></div>
+            <div><dt>Caminho absoluto</dt><dd>Endereço completo a partir da raiz, como <code>/home/aluno</code>.</dd></div>
+            <div><dt>Caminho relativo</dt><dd>Endereço a partir da pasta atual, como <code>../Documentos</code>.</dd></div>
+            <div><dt>root</dt><dd>Usuário administrador, com acesso total ao sistema.</dd></div>
+            <div><dt><code>sudo</code></dt><dd>Executa um comando com privilégios de administrador.</dd></div>
+            <div><dt>Permissão</dt><dd>Regra que define quem pode ler (r), escrever (w) ou executar (x).</dd></div>
+            <div><dt>Software livre</dt><dd>Programa que pode ser usado, estudado, modificado e distribuído por qualquer pessoa.</dd></div>
+          </dl>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#apresentacao">↑ Voltar ao topo</a>
+        <a href="#glossario">Glossário</a>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
