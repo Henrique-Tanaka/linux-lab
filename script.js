@@ -45,12 +45,6 @@ const quizContainer = document.getElementById('quizContainer');
 const moduleCards = [...document.querySelectorAll('.module-card')];
 const stepItems = [...document.querySelectorAll('.step-item')];
 
-moduleCards.forEach((card) => {
-  card.addEventListener('click', () => {
-    document.getElementById(card.dataset.module)?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
-  });
-});
-
 /* ------------------------------------------------------------------
  * Menu
  * ------------------------------------------------------------------ */
@@ -73,28 +67,16 @@ if (menuToggle) {
 }
 
 /* ------------------------------------------------------------------
- * Vídeo: mostra um aviso se o arquivo estiver ausente ou corrompido
+ * Videoaula: o iframe informa a própria altura para não ter rolagem interna
  * ------------------------------------------------------------------ */
 
-const lessonVideo = document.getElementById('lessonVideo');
-const videoFallback = document.getElementById('videoFallback');
+const videoaulaFrame = document.getElementById('videoaulaFrame');
 
-function showVideoFallback() {
-  lessonVideo.hidden = true;
-  videoFallback.hidden = false;
-}
-
-if (lessonVideo && videoFallback) {
-  lessonVideo.querySelector('source')?.addEventListener('error', showVideoFallback);
-  lessonVideo.addEventListener('error', showVideoFallback);
-  lessonVideo.addEventListener('loadedmetadata', () => {
-    if (!lessonVideo.duration) showVideoFallback();
-  });
-  // O erro pode ter acontecido antes de o script começar a escutar.
-  window.addEventListener('load', () => {
-    if (lessonVideo.error || lessonVideo.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-      showVideoFallback();
-    }
+if (videoaulaFrame) {
+  window.addEventListener('message', (event) => {
+    if (event.source !== videoaulaFrame.contentWindow || event.data?.type !== 'videoaula-height') return;
+    const height = Number(event.data.height);
+    if (height > 0) videoaulaFrame.style.height = `${Math.ceil(height)}px`;
   });
 }
 
@@ -299,8 +281,11 @@ renderQuiz();
  * ------------------------------------------------------------------ */
 
 const USER = 'aluno';
+const HOSTNAME = 'ubuntu';
 const HOME = `/home/${USER}`;
 const LAB_DIR = `${HOME}/estudos`;
+const BINARY_CONTENT = '(programa binário)';
+const FS_VERSION = 2; // aumente ao mudar os arquivos do sistema em createInitialFs
 
 class CommandError extends Error {
   constructor(message, hint) {
@@ -311,6 +296,26 @@ class CommandError extends Error {
 
 function fail(message, hint) {
   throw new CommandError(message, hint);
+}
+
+// Como no shell real, um erro em um dos itens não impede os outros; no fim, o comando conta como falho.
+function forEachOperand(items, action) {
+  let failed = false;
+  items.forEach((item) => {
+    try {
+      action(item);
+    } catch (error) {
+      if (!(error instanceof CommandError)) throw error;
+      printError(error.message);
+      if (error.hint) printHint(error.hint);
+      failed = true;
+    }
+  });
+  if (failed) throw new CommandError('');
+}
+
+function isDotEntry(target) {
+  return ['.', '..'].includes(baseNameOf(target.replace(/\/+$/, '') || '/'));
 }
 
 function dirNode(owner = 'root', mode = 'rwxr-xr-x') {
@@ -325,12 +330,12 @@ function createInitialFs() {
   return {
     '/': dirNode(),
     '/bin': dirNode(),
-    '/bin/bash': fileNode('(programa binário)', 'root', 'rwxr-xr-x'),
-    '/bin/ls': fileNode('(programa binário)', 'root', 'rwxr-xr-x'),
+    '/bin/bash': fileNode(BINARY_CONTENT, 'root', 'rwxr-xr-x'),
+    '/bin/ls': fileNode(BINARY_CONTENT, 'root', 'rwxr-xr-x'),
     '/boot': dirNode(),
     '/dev': dirNode(),
     '/etc': dirNode(),
-    '/etc/hostname': fileNode('linux', 'root'),
+    '/etc/hostname': fileNode(HOSTNAME, 'root'),
     '/etc/os-release': fileNode('NAME="Linux Lab"\nVERSION="1.0 (Aula 1)"\nID=linuxlab', 'root'),
     '/home': dirNode(),
     [HOME]: dirNode(USER),
@@ -360,12 +365,21 @@ const terminal = {
   busy: false
 };
 
+// Quem já usou a página tem o terminal antigo salvo: numa versão nova, os arquivos do sistema (do root)
+// são atualizados uma vez. Os arquivos do aluno ficam como estão.
+if (saved.terminal && saved.terminal.fsVersion !== FS_VERSION) {
+  Object.entries(createInitialFs()).forEach(([path, node]) => {
+    if (node.owner === 'root') terminal.fs[path] = node;
+  });
+}
+
 if (!terminal.fs[terminal.cwd]) {
   terminal.cwd = HOME;
 }
 
 function saveTerminal() {
   saved.terminal = {
+    fsVersion: FS_VERSION,
     fs: terminal.fs,
     cwd: terminal.cwd,
     labListed: terminal.labListed,
@@ -520,7 +534,7 @@ function partsToText(parts) {
 }
 
 function promptText() {
-  return `${USER}@linux:${displayPath(terminal.cwd)}$`;
+  return `${USER}@${HOSTNAME}:${displayPath(terminal.cwd)}$`;
 }
 
 function updatePrompt() {
@@ -569,6 +583,98 @@ function runScript(node, displayName, depth) {
     .forEach((line) => runLine(line, { echo: false, depth: depth + 1 }));
 }
 
+// cp e mv aceitam vários arquivos de origem; nesse caso o último nome precisa ser uma pasta.
+function sourcesAndDestination(name, operands) {
+  if (operands.length < 2) fail(`${name}: falta o operando arquivo`, `Uso: ${name} origem destino`);
+  const destination = operands[operands.length - 1];
+  const sources = operands.slice(0, -1);
+  if (sources.length > 1 && getNode(resolvePath(destination))?.type !== 'dir') {
+    fail(
+      `${name}: o destino '${destination}' não é um diretório`,
+      'Com vários arquivos de origem, o último nome precisa ser uma pasta que já existe.'
+    );
+  }
+  return { sources, destination };
+}
+
+function copyItem(source, destination, recursive) {
+  const sourcePath = resolvePath(source);
+  const sourceNode = getNode(sourcePath);
+  if (!sourceNode) fail(`cp: não foi possível obter estado de '${source}': Arquivo ou diretório inexistente`);
+  if (sourceNode.type === 'dir' && !recursive) {
+    fail(`cp: -r não especificado; omitindo o diretório '${source}'`, 'Para copiar pastas, use cp -r origem destino');
+  }
+  if (!can(sourceNode, 'r')) fail(`cp: não foi possível abrir '${source}' para leitura: Permissão negada`);
+
+  const destinationPath = resolveDestination(sourcePath, destination);
+  const destinationNode = getNode(destinationPath);
+  if (destinationPath === sourcePath) fail(`cp: '${source}' e '${destination}' são o mesmo arquivo`);
+  if (destinationPath.startsWith(`${sourcePath}/`)) {
+    fail(`cp: não é possível copiar um diretório, '${source}', para dentro dele mesmo`);
+  }
+  if (destinationNode?.type === 'dir' && sourceNode.type !== 'dir') {
+    fail(`cp: não é possível sobrescrever o diretório '${destination}' com um arquivo`);
+  }
+  if (destinationNode?.type === 'file' && sourceNode.type === 'dir') {
+    fail(`cp: não é possível sobrescrever o arquivo '${destination}' com o diretório '${source}'`);
+  }
+  if (destinationNode?.type === 'file' && !can(destinationNode, 'w')) {
+    fail(
+      `cp: não foi possível criar o arquivo comum '${destination}': Permissão negada`,
+      'O arquivo de destino está protegido contra escrita. Veja as permissões com ls -l.'
+    );
+  }
+  if (!destinationNode) {
+    requireWritableParent(destinationPath, (reason) => `cp: não foi possível criar '${destination}': ${reason}`);
+  }
+
+  // Pasta copiada sobre pasta existente: o conteúdo é mesclado, como no cp -r real.
+  const now = Date.now();
+  [sourcePath, ...descendantsOf(sourcePath)].forEach((path) => {
+    const node = terminal.fs[path];
+    const targetPath = destinationPath + path.slice(sourcePath.length);
+    const existing = getNode(targetPath);
+    if (existing && existing.type !== node.type) return;
+    if (existing?.type === 'dir') {
+      existing.mtime = now;
+      return;
+    }
+    terminal.fs[targetPath] = { ...node, owner: USER, mtime: now };
+  });
+}
+
+function moveItem(source, destination) {
+  const sourcePath = resolvePath(source);
+  const sourceNode = getNode(sourcePath);
+  if (!sourceNode) fail(`mv: não foi possível obter estado de '${source}': Arquivo ou diretório inexistente`);
+  if (sourcePath === '/' || sourcePath === HOME || isDotEntry(source)) fail(`mv: não é possível mover '${source}'`);
+
+  const destinationPath = resolveDestination(sourcePath, destination);
+  if (destinationPath === sourcePath) return;
+  if (destinationPath.startsWith(`${sourcePath}/`)) {
+    fail(`mv: não é possível mover '${source}' para um subdiretório de si mesmo`);
+  }
+  const destinationNode = getNode(destinationPath);
+  if (destinationNode?.type === 'dir') {
+    fail(`mv: não é possível sobrescrever o diretório '${destination}'`);
+  }
+  if (destinationNode && sourceNode.type === 'dir') {
+    fail(`mv: não é possível sobrescrever o arquivo '${destination}' com o diretório '${source}'`);
+  }
+  requireWritableParent(sourcePath, (reason) => `mv: não foi possível mover '${source}': ${reason}`);
+  requireWritableParent(destinationPath, (reason) => `mv: não foi possível mover para '${destination}': ${reason}`);
+
+  const moved = [sourcePath, ...descendantsOf(sourcePath)].map((path) => [path, terminal.fs[path]]);
+  moved.forEach(([path]) => delete terminal.fs[path]);
+  moved.forEach(([path, node]) => {
+    terminal.fs[destinationPath + path.slice(sourcePath.length)] = node;
+  });
+
+  if (terminal.cwd === sourcePath || terminal.cwd.startsWith(`${sourcePath}/`)) {
+    terminal.cwd = destinationPath + terminal.cwd.slice(sourcePath.length);
+  }
+}
+
 const commands = {
   help: {
     usage: 'help',
@@ -589,7 +695,7 @@ const commands = {
     run({ operands }) {
       const name = operands[0];
       if (!name) fail('Qual página de manual você deseja?', 'Exemplo: man ls');
-      const command = commands[name];
+      const command = Object.hasOwn(commands, name) ? commands[name] : null;
       if (!command) fail(`Nenhuma entrada de manual para ${name}`);
       appendLine({ text: 'NOME', cls: 'term-cmd' });
       appendLine(`    ${name}: ${command.description}`);
@@ -627,20 +733,23 @@ const commands = {
     run({ operands, flags, print }) {
       const targets = operands.length ? operands : ['.'];
       const isLong = flags.has('l');
+      let listed = 0;
 
-      targets.forEach((target, targetIndex) => {
+      forEachOperand(targets, (target) => {
         const path = resolvePath(target);
         const node = getNode(path);
         if (!node) fail(`ls: não foi possível acessar '${target}': Arquivo ou diretório inexistente`);
 
-        if (targets.length > 1) {
-          if (targetIndex > 0) print('');
-          print(`${target}:`);
-        }
+        const isFirst = listed === 0;
+        listed += 1;
 
         if (node.type === 'file') {
           print(isLong ? longEntry(target, node) : entryPart(target, node));
           return;
+        }
+        if (targets.length > 1) {
+          if (!isFirst) print('');
+          print(`${target}:`);
         }
         if (!can(node, 'r')) fail(`ls: não foi possível abrir o diretório '${target}': Permissão negada`);
 
@@ -691,7 +800,7 @@ const commands = {
     examples: ['mkdir estudos', 'mkdir -p projetos/2026/outubro'],
     run({ operands, flags }) {
       if (!operands.length) fail('mkdir: falta o operando', 'Uso: mkdir nome-da-pasta');
-      operands.forEach((target) => {
+      forEachOperand(operands, (target) => {
         const path = resolvePath(target);
         const message = (reason) => `mkdir: não foi possível criar o diretório '${target}': ${reason}`;
         const existing = getNode(path);
@@ -725,7 +834,7 @@ const commands = {
     examples: ['touch resumo.txt', 'touch estudos/notas.txt'],
     run({ operands }) {
       if (!operands.length) fail('touch: falta o operando arquivo', 'Uso: touch nome-do-arquivo');
-      operands.forEach((target) => {
+      forEachOperand(operands, (target) => {
         const path = resolvePath(target);
         const existing = getNode(path);
         if (existing) {
@@ -743,7 +852,7 @@ const commands = {
     examples: ['cat boas-vindas.txt', 'cat /etc/os-release'],
     run({ operands, print }) {
       if (!operands.length) fail('cat: falta o operando arquivo', 'Uso: cat nome-do-arquivo');
-      operands.forEach((target) => {
+      forEachOperand(operands, (target) => {
         const node = getNode(resolvePath(target));
         if (!node) fail(`cat: ${target}: Arquivo ou diretório inexistente`);
         if (node.type === 'dir') fail(`cat: ${target}: É um diretório`, 'Para ver o conteúdo de uma pasta, use ls.');
@@ -766,68 +875,23 @@ const commands = {
     }
   },
   cp: {
-    usage: 'cp [-r] origem destino',
+    usage: 'cp [-r] origem... destino',
     description: 'Copia arquivos ou pastas.',
-    options: ['-r  copia pastas e todo o seu conteúdo'],
-    examples: ['cp resumo.txt resumo-copia.txt', 'cp resumo.txt estudos/', 'cp -r estudos estudos-backup'],
+    options: ['-r  copia pastas e todo o seu conteúdo', 'Com vários arquivos de origem, o último nome precisa ser uma pasta.'],
+    examples: ['cp resumo.txt resumo-copia.txt', 'cp resumo.txt estudos/', 'cp a.txt b.txt estudos/', 'cp -r estudos estudos-backup'],
     run({ operands, flags }) {
-      if (operands.length < 2) fail('cp: falta o operando arquivo', 'Uso: cp origem destino');
-      const [source, destination] = operands;
-      const sourcePath = resolvePath(source);
-      const sourceNode = getNode(sourcePath);
-      if (!sourceNode) fail(`cp: não foi possível obter estado de '${source}': Arquivo ou diretório inexistente`);
-      if (sourceNode.type === 'dir' && !flags.has('r') && !flags.has('R')) {
-        fail(`cp: -r não especificado; omitindo o diretório '${source}'`, 'Para copiar pastas, use cp -r origem destino');
-      }
-      if (!can(sourceNode, 'r')) fail(`cp: não foi possível abrir '${source}' para leitura: Permissão negada`);
-
-      const destinationPath = resolveDestination(sourcePath, destination);
-      if (destinationPath === sourcePath) fail(`cp: '${source}' e '${destination}' são o mesmo arquivo`);
-      if (destinationPath.startsWith(`${sourcePath}/`)) {
-        fail(`cp: não é possível copiar um diretório, '${source}', para dentro dele mesmo`);
-      }
-      if (getNode(destinationPath)?.type === 'dir') {
-        fail(`cp: não é possível sobrescrever o diretório '${destination}' com um arquivo`);
-      }
-      requireWritableParent(destinationPath, (reason) => `cp: não foi possível criar '${destination}': ${reason}`);
-
-      const now = Date.now();
-      [sourcePath, ...descendantsOf(sourcePath)].forEach((path) => {
-        terminal.fs[destinationPath + path.slice(sourcePath.length)] = { ...terminal.fs[path], owner: USER, mtime: now };
-      });
+      const { sources, destination } = sourcesAndDestination('cp', operands);
+      forEachOperand(sources, (source) => copyItem(source, destination, flags.has('r') || flags.has('R')));
     }
   },
   mv: {
-    usage: 'mv origem destino',
+    usage: 'mv origem... destino',
     description: 'Move ou renomeia arquivos e pastas.',
-    examples: ['mv resumo.txt novo.txt', 'mv novo.txt estudos/'],
+    options: ['Com vários arquivos de origem, o último nome precisa ser uma pasta.'],
+    examples: ['mv resumo.txt novo.txt', 'mv novo.txt estudos/', 'mv a.txt b.txt estudos/'],
     run({ operands }) {
-      if (operands.length < 2) fail('mv: falta o operando arquivo', 'Uso: mv origem destino');
-      const [source, destination] = operands;
-      const sourcePath = resolvePath(source);
-      if (!getNode(sourcePath)) fail(`mv: não foi possível obter estado de '${source}': Arquivo ou diretório inexistente`);
-      if (sourcePath === '/' || sourcePath === HOME) fail(`mv: não é possível mover '${source}'`);
-
-      const destinationPath = resolveDestination(sourcePath, destination);
-      if (destinationPath === sourcePath) return;
-      if (destinationPath.startsWith(`${sourcePath}/`)) {
-        fail(`mv: não é possível mover '${source}' para um subdiretório de si mesmo`);
-      }
-      if (getNode(destinationPath)?.type === 'dir') {
-        fail(`mv: não é possível sobrescrever o diretório '${destination}'`);
-      }
-      requireWritableParent(sourcePath, (reason) => `mv: não foi possível mover '${source}': ${reason}`);
-      requireWritableParent(destinationPath, (reason) => `mv: não foi possível mover para '${destination}': ${reason}`);
-
-      const moved = [sourcePath, ...descendantsOf(sourcePath)].map((path) => [path, terminal.fs[path]]);
-      moved.forEach(([path]) => delete terminal.fs[path]);
-      moved.forEach(([path, node]) => {
-        terminal.fs[destinationPath + path.slice(sourcePath.length)] = node;
-      });
-
-      if (terminal.cwd === sourcePath || terminal.cwd.startsWith(`${sourcePath}/`)) {
-        terminal.cwd = destinationPath + terminal.cwd.slice(sourcePath.length);
-      }
+      const { sources, destination } = sourcesAndDestination('mv', operands);
+      forEachOperand(sources, (source) => moveItem(source, destination));
     }
   },
   rm: {
@@ -838,7 +902,10 @@ const commands = {
     run({ operands, flags }) {
       if (!operands.length) fail('rm: falta o operando', 'Uso: rm nome-do-arquivo');
       const recursive = flags.has('r') || flags.has('R');
-      operands.forEach((target) => {
+      forEachOperand(operands, (target) => {
+        if (isDotEntry(target)) {
+          fail(`rm: recusando-se a remover os diretórios '.' ou '..': ignorando '${target}'`, 'Para apagar a pasta atual, saia dela (cd ..) e use rm -r nome-da-pasta.');
+        }
         const path = resolvePath(target);
         const node = getNode(path);
         if (!node) {
@@ -866,10 +933,11 @@ const commands = {
     examples: ['rmdir estudos'],
     run({ operands }) {
       if (!operands.length) fail('rmdir: falta o operando', 'Uso: rmdir nome-da-pasta');
-      operands.forEach((target) => {
+      forEachOperand(operands, (target) => {
         const path = resolvePath(target);
         const node = getNode(path);
         const message = (reason) => `rmdir: falhou em remover '${target}': ${reason}`;
+        if (isDotEntry(target)) fail(message('Argumento inválido'), 'Saia da pasta (cd ..) e use rmdir nome-da-pasta.');
         if (!node) fail(message('Arquivo ou diretório inexistente'));
         if (node.type !== 'dir') fail(message('Não é um diretório'), 'Para apagar arquivos, use rm.');
         if (childrenOf(path).length) fail(message('Diretório não vazio'), 'Use rm -r para apagar a pasta e tudo o que há dentro dela.');
@@ -887,14 +955,14 @@ const commands = {
     run({ args }) {
       const [modeArg, ...targets] = args;
       if (!modeArg || !targets.length) fail('chmod: falta o operando', 'Uso: chmod 755 arquivo  ou  chmod +x arquivo');
-      targets.forEach((target) => {
+      if (!applyMode('---------', modeArg)) fail(`chmod: modo inválido: '${modeArg}'`, 'Exemplos válidos: 644, 755, u+x, g-w, o=r');
+      forEachOperand(targets, (target) => {
         const node = getNode(resolvePath(target));
         if (!node) fail(`chmod: não foi possível acessar '${target}': Arquivo ou diretório inexistente`);
         if (node.owner !== USER) {
           fail(`chmod: alterando as permissões de '${target}': Operação não permitida`, 'Somente o dono do arquivo (ou o root) pode mudar as permissões.');
         }
         const next = applyMode(node.mode, modeArg);
-        if (!next) fail(`chmod: modo inválido: '${modeArg}'`, 'Exemplos válidos: 644, 755, u+x, g-w, o=r');
         const previous = node.mode;
         node.mode = next;
         printHint(`${target}: ${previous} → ${next} (${modeToOctal(next)})`);
@@ -948,13 +1016,21 @@ const commands = {
   }
 };
 
+// Palavras viram textos; > e >> fora de aspas viram { redirect }, mesmo colados ao texto (echo oi>notas.txt).
 function tokenize(input) {
   const tokens = [];
   let current = '';
   let quote = null;
   let started = false;
 
-  for (const char of input) {
+  const pushWord = () => {
+    if (started) tokens.push(current);
+    current = '';
+    started = false;
+  };
+
+  for (let index = 0; index < input.length; index += 1) {
+    const char = input[index];
     if (quote) {
       if (char === quote) {
         quote = null;
@@ -965,41 +1041,58 @@ function tokenize(input) {
       quote = char;
       started = true;
     } else if (/\s/.test(char)) {
-      if (started) {
-        tokens.push(current);
-        current = '';
-        started = false;
-      }
+      pushWord();
+    } else if (char === '>') {
+      pushWord();
+      const append = input[index + 1] === '>';
+      if (append) index += 1;
+      tokens.push({ redirect: append ? '>>' : '>' });
     } else {
       current += char;
       started = true;
     }
   }
-  if (started) tokens.push(current);
+  pushWord();
   return tokens;
 }
 
-function writeRedirect({ target, append, buffer }) {
-  const path = resolvePath(target);
-  const existing = getNode(path);
-  const text = buffer.join('\n');
+// Como no bash, o arquivo é aberto antes de o comando rodar: > cria ou esvazia, >> só cria se faltar.
+function openRedirect(redirect) {
+  const { target, append } = redirect;
+  redirect.path = resolvePath(target);
+  const existing = getNode(redirect.path);
   if (existing?.type === 'dir') fail(`bash: ${target}: É um diretório`);
   if (existing) {
     if (!can(existing, 'w')) fail(`bash: ${target}: Permissão negada`);
-    existing.content = append && existing.content ? `${existing.content}\n${text}` : text;
-    existing.mtime = Date.now();
+    if (!append) {
+      existing.content = '';
+      existing.mtime = Date.now();
+    }
     return;
   }
-  requireWritableParent(path, (reason) => `bash: ${target}: ${reason}`);
-  terminal.fs[path] = fileNode(text);
+  requireWritableParent(redirect.path, (reason) => `bash: ${target}: ${reason}`);
+  terminal.fs[redirect.path] = fileNode('');
+}
+
+function writeRedirect({ path, buffer }) {
+  const node = getNode(path);
+  if (!buffer.length || node?.type !== 'file') return;
+  const text = buffer.join('\n');
+  node.content = node.content ? `${node.content}\n${text}` : text;
+  node.mtime = Date.now();
 }
 
 function runExecutable(name, depth) {
-  const node = getNode(resolvePath(name));
+  const path = resolvePath(name);
+  const node = getNode(path);
   if (!node) fail(`bash: ${name}: Arquivo ou diretório inexistente`);
   if (node.type === 'dir') fail(`bash: ${name}: É um diretório`);
   if (!can(node, 'x')) {
     fail(`bash: ${name}: Permissão negada`, `O arquivo não tem permissão de execução (x). Tente: chmod +x ${name}`);
+  }
+  if (node.content === BINARY_CONTENT) {
+    // Programas do sistema não são scripts: o simulador só executa pelo nome do comando.
+    fail(`bash: ${name}: execução direta de programas do sistema não é simulada`, `Digite apenas o nome do comando, por exemplo: ${baseNameOf(path)}`);
   }
   runScript(node, name, depth);
 }
@@ -1016,12 +1109,18 @@ function runLine(rawInput, { echo = true, depth = 0, typed = false } = {}) {
   try {
     const tokens = tokenize(input);
     let redirect = null;
-    const redirectIndex = tokens.findIndex((token) => token === '>' || token === '>>');
+    const redirectIndex = tokens.findIndex((token) => typeof token !== 'string');
     if (redirectIndex !== -1) {
       const target = tokens[redirectIndex + 1];
-      if (!target) fail("bash: erro de sintaxe próximo ao token inesperado 'newline'", 'Informe o arquivo depois do >, por exemplo: echo oi > notas.txt');
-      redirect = { target, append: tokens[redirectIndex] === '>>', buffer: [] };
+      if (target === undefined) {
+        fail("bash: erro de sintaxe próximo ao token inesperado 'newline'", 'Informe o arquivo depois do >, por exemplo: echo oi > notas.txt');
+      }
+      if (typeof target !== 'string') fail(`bash: erro de sintaxe próximo ao token inesperado '${target.redirect}'`);
+      redirect = { target, append: tokens[redirectIndex].redirect === '>>', buffer: [] };
       tokens.splice(redirectIndex, 2);
+      if (tokens.some((token) => typeof token !== 'string')) {
+        fail('bash: use apenas um > ou >> por comando nesta simulação');
+      }
     }
 
     const [name, ...args] = tokens;
@@ -1048,31 +1147,35 @@ function runLine(rawInput, { echo = true, depth = 0, typed = false } = {}) {
     const runInfo = { name, args, flags, operands, typed, ok: false };
     if (depth === 0) terminal.lastRun = runInfo;
 
-    if (name.includes('/')) {
-      runExecutable(name, depth);
-    } else {
-      const command = commands[name];
-      if (!command) {
-        const hint = getNode(joinPath(terminal.cwd, name))
-          ? `Para executar um arquivo da pasta atual, use ./${name}`
-          : 'Digite help para ver os comandos disponíveis.';
-        fail(`${name}: comando não encontrado`, hint);
-      }
-
-      if (args.includes('--help')) {
-        appendLine(`Uso: ${command.usage}`);
-        appendLine(command.description);
-        (command.options || []).forEach((option) => appendLine(`  ${option}`));
+    if (redirect) openRedirect(redirect);
+    try {
+      if (name.includes('/')) {
+        runExecutable(name, depth);
       } else {
-        command.run({ args, flags, operands, print, depth });
-      }
-    }
+        const command = Object.hasOwn(commands, name) ? commands[name] : null;
+        if (!command) {
+          const hint = getNode(joinPath(terminal.cwd, name))
+            ? `Para executar um arquivo da pasta atual, use ./${name}`
+            : 'Digite help para ver os comandos disponíveis.';
+          fail(`${name}: comando não encontrado`, hint);
+        }
 
-    if (redirect) writeRedirect(redirect);
+        if (args.includes('--help')) {
+          appendLine(`Uso: ${command.usage}`);
+          appendLine(command.description);
+          (command.options || []).forEach((option) => appendLine(`  ${option}`));
+        } else {
+          command.run({ args, flags, operands, print, depth });
+        }
+      }
+    } finally {
+      // Mesmo quando o comando falha, o que ele já tinha mostrado vai para o arquivo.
+      if (redirect) writeRedirect(redirect);
+    }
     runInfo.ok = true;
   } catch (error) {
     if (!(error instanceof CommandError)) throw error;
-    printError(error.message);
+    if (error.message) printError(error.message);
     if (error.hint) printHint(error.hint);
   }
 
@@ -1473,7 +1576,7 @@ const careerChapters = [
     setup() {
       seedFile(
         `${HOME}/recado-da-equipe.txt`,
-        'Olá! Seja bem-vindo(a) ao time de TI da TechNova.\nSeu primeiro dia terá 5 etapas. Em caso de dúvida, digite help.\nBom trabalho! Carla, coordenação de TI'
+        'Olá! Seja bem-vindo(a) ao time de TI da TechNova.\nSeu primeiro dia terá 5 etapas. Em caso de dúvida, digite help.\nBom trabalho!\n— Carla, coordenação de TI'
       );
     },
     tasks: [
@@ -2007,6 +2110,7 @@ const progress = {
   read: [],
   commands: [],
   builderUsed: false,
+  video: { scenes: [], total: 0 },
   done: [],
   celebrated: false,
   ...saved.progress
@@ -2015,10 +2119,12 @@ saved.progress = progress;
 delete saved.reachedSection; // formato antigo, que media apenas a rolagem da página
 
 const QUIZ_PASS = Math.ceil(baseQuestions.length * 0.7);
+const VIDEO_GOAL = 0.8; // fração das cenas da videoaula que precisa ser assistida até o fim
 const COMMANDS_GOAL = 5;
 const IGNORED_COMMANDS = ['help', 'clear', 'reset', 'history'];
 
 const usedCommands = (...names) => names.every((name) => progress.commands.includes(name));
+const videoScenesNeeded = () => Math.ceil(progress.video.total * VIDEO_GOAL);
 
 function readObjective(sectionId) {
   return {
@@ -2033,7 +2139,19 @@ const lessonModules = [
   {
     id: 'sistema-operacional',
     title: 'Sistema operacional',
-    objectives: [readObjective('sistema-operacional')]
+    objectives: [
+      {
+        id: 'videoaula:assistir',
+        label: 'Assistir à videoaula',
+        target: 'videoaula',
+        check: () => progress.video.total > 0 && progress.video.scenes.length >= videoScenesNeeded(),
+        detail: () =>
+          progress.video.total
+            ? `${progress.video.scenes.length} de ${videoScenesNeeded()} cenas necessárias`
+            : `assista pelo menos ${Math.round(VIDEO_GOAL * 100)}% das cenas`
+      },
+      readObjective('sistema-operacional')
+    ]
   },
   {
     id: 'linux',
@@ -2164,11 +2282,25 @@ function refreshReadState() {
 
 function recordCommandUse() {
   const run = terminal.lastRun;
-  if (!run?.ok || !run.typed || !commands[run.name] || IGNORED_COMMANDS.includes(run.name)) return;
+  if (!run?.ok || !run.typed || !Object.hasOwn(commands, run.name) || IGNORED_COMMANDS.includes(run.name)) return;
   if (!progress.commands.includes(run.name)) {
     progress.commands.push(run.name);
   }
 }
+
+// A videoaula (iframe) avisa cada cena assistida até o fim. Pular cenas não conta.
+window.addEventListener('message', (event) => {
+  const frame = document.getElementById('videoaulaFrame');
+  const { data } = event;
+  if (!frame || event.source !== frame.contentWindow || data?.type !== 'videoaula-cena') return;
+  const scene = Number(data.scene);
+  const total = Number(data.total);
+  if (!Number.isInteger(scene) || !Number.isInteger(total) || scene < 0 || scene >= total) return;
+  progress.video.total = total;
+  if (!progress.video.scenes.includes(scene)) progress.video.scenes.push(scene);
+  persist();
+  evaluateProgress();
+});
 
 function moduleState(module) {
   const done = module.objectives.filter(isDone).length;
@@ -2196,6 +2328,24 @@ function objectiveItemHtml(objective) {
       <span>${escapeHtml(objective.label)}${detail ? ` <small>${escapeHtml(detail)}</small>` : ''}</span>
       <span class="visually-hidden">${done ? '(concluído)' : '(pendente)'}</span>
     </li>`;
+}
+
+function renderVideoProgress() {
+  const text = document.getElementById('videoProgressText');
+  if (!text) return;
+  const { scenes, total } = progress.video;
+  const needed = videoScenesNeeded();
+  const watched = progress.done.includes('videoaula:assistir');
+  const percent = watched ? 100 : total ? Math.round(Math.min(1, scenes.length / needed) * 100) : 0;
+
+  text.textContent = watched
+    ? '✓ Concluída! Já conta no progresso do Módulo 1.'
+    : total
+      ? `${scenes.length} de ${total} cenas assistidas · faltam ${needed - scenes.length} para concluir`
+      : `Assista a pelo menos ${Math.round(VIDEO_GOAL * 100)}% das cenas para concluir.`;
+  document.getElementById('videoProgressFill').style.width = `${percent}%`;
+  document.getElementById('videoProgressBar').setAttribute('aria-valuenow', String(percent));
+  text.closest('.video-player')?.classList.toggle('is-watched', watched);
 }
 
 function renderProgress() {
@@ -2227,6 +2377,8 @@ function renderProgress() {
     heroStart.href = '#modulos';
     heroStart.textContent = 'Revisar os módulos';
   }
+
+  renderVideoProgress();
 
   setHtml(
     document.getElementById('courseChecklist'),

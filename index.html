@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistemas Operacionais: primeiros passos no Linux</title>
+    <title>Sistemas Operacionais: primeiros passos no Linux · Linux Lab</title>
     <meta
       name="description"
       content="Página educacional para aula introdutória de sistemas operacionais com foco em Linux: conceitos, diretórios, comandos, permissões e terminal simulado."
@@ -49,12 +49,13 @@
           aria-controls="mainMenu"
         >☰</button>
         <ul class="menu" id="mainMenu">
+          <li><a href="#videoaula">Videoaula</a></li>
           <li><a href="#sistema-operacional">Sistema operacional</a></li>
           <li><a href="#linux">Linux</a></li>
           <li><a href="#arquivos">Arquivos</a></li>
           <li><a href="#comandos">Comandos</a></li>
           <li><a href="#usuarios">Permissões</a></li>
-          <li><a href="#pratique">Pratique</a></li>
+          <li><a href="#pratique">Prática</a></li>
           <li><a href="#carreira">Carreira</a></li>
           <li><a href="#glossario">Glossário</a></li>
         </ul>
@@ -63,6 +64,13 @@
         <span id="progressBar" class="progress-bar"></span>
       </div>
     </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
 
     <main id="conteudo" tabindex="-1">
       <section id="apresentacao" class="section hero">
@@ -91,7 +99,9 @@
               <a href="#sistema-operacional" class="primary-btn" id="heroStart">Começar a aula</a>
               <a href="#pratique" class="secondary-btn">Ir para prática</a>
             </div>
+          </div>
 
+          <aside class="hero-side" aria-label="Seu progresso">
             <div class="course-progress-card">
               <div class="course-progress-head">
                 <span class="goal-label">Progresso da aula</span>
@@ -115,26 +125,6 @@
                 <ol id="courseChecklist"></ol>
               </details>
             </div>
-          </div>
-
-          <aside class="video-card" aria-label="Videoaula">
-            <div class="video-header">
-              <span class="dot dot-green" aria-hidden="true"></span>
-              <span>Videoaula: introdução ao Linux</span>
-            </div>
-            <div class="video-frame">
-              <video id="lessonVideo" controls preload="metadata" playsinline>
-                <source src="./gemini_generated_video_2f697187.mp4" type="video/mp4" />
-                Seu navegador não suporta vídeos HTML5.
-              </video>
-              <div id="videoFallback" class="video-fallback" hidden>
-                <span class="play-icon" aria-hidden="true">▶</span>
-                <p>
-                  O vídeo desta aula ainda não está disponível. Enquanto isso, siga o conteúdo
-                  abaixo: ele cobre todos os tópicos.
-                </p>
-              </div>
-            </div>
           </aside>
         </div>
       </section>
@@ -151,54 +141,54 @@
           </div>
 
           <div class="module-grid">
-            <button type="button" class="module-card" data-module="sistema-operacional">
+            <a class="module-card" href="#sistema-operacional" data-module="sistema-operacional">
               <span class="module-number">Módulo 1</span>
               <h3>Sistema operacional</h3>
-              <p>O que é, para que serve e como ele conversa com o hardware.</p>
+              <p>Videoaula de abertura, o que é um sistema operacional e como ele conversa com o hardware.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card" data-module="linux">
+            <a class="module-card" href="#linux" data-module="linux">
               <span class="module-number">Módulo 2</span>
               <h3>Conhecendo o Linux</h3>
               <p>História, software livre, kernel, shell e distribuições.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card" data-module="arquivos">
+            <a class="module-card" href="#arquivos" data-module="arquivos">
               <span class="module-number">Módulo 3</span>
               <h3>Arquivos e diretórios</h3>
               <p>A árvore de pastas do Linux e os caminhos absolutos e relativos.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card" data-module="comandos">
+            <a class="module-card" href="#comandos" data-module="comandos">
               <span class="module-number">Módulo 4</span>
               <h3>Comandos do terminal</h3>
               <p>Navegar, criar, copiar, mover e apagar, além de pedir ajuda ao sistema.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card" data-module="usuarios">
+            <a class="module-card" href="#usuarios" data-module="usuarios">
               <span class="module-number">Módulo 5</span>
               <h3>Usuários e permissões</h3>
               <p>Dono, grupo e outros; <code>rwx</code>, <code>chmod</code> e <code>sudo</code>.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card" data-module="pratique">
+            <a class="module-card" href="#pratique" data-module="pratique">
               <span class="module-number">Módulo 6</span>
               <h3>Prática e revisão</h3>
               <p>Atividade guiada, missões do dia a dia e quiz de revisão.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
 
-            <button type="button" class="module-card module-card-game" data-module="carreira">
+            <a class="module-card module-card-game" href="#carreira" data-module="carreira">
               <span class="module-number">Módulo 7 · Jogo</span>
               <h3>Modo carreira</h3>
               <p>Viva um dia de trabalho na TechNova: cumpra tarefas, ganhe XP e suba de cargo.</p>
               <span class="module-status">Próximo</span>
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -209,6 +199,63 @@
             <p class="eyebrow">1. Conceitos</p>
             <h2>O que é um sistema operacional?</h2>
           </div>
+
+          <article id="videoaula" class="video-card video-player" aria-labelledby="videoaula-titulo">
+            <header class="video-player-head">
+              <div class="video-player-title">
+                <span class="play-badge" aria-hidden="true">▶</span>
+                <div>
+                  <p class="video-player-kicker"><span class="dot dot-green" aria-hidden="true"></span> Videoaula do módulo 1 · comece por aqui</p>
+                  <h2 id="videoaula-titulo">Fundamentos do Linux: primeiros passos</h2>
+                </div>
+              </div>
+              <ul class="video-meta" aria-label="Sobre a videoaula">
+                <li><span aria-hidden="true">⏱</span> 16 a 19 min</li>
+                <li><span aria-hidden="true">🔊</span> Narração em português</li>
+                <li><span aria-hidden="true">💬</span> Legendas</li>
+                <li><span aria-hidden="true">🖥️</span> Ubuntu e terminal</li>
+                <li><span aria-hidden="true">🎯</span> Desafio no final</li>
+              </ul>
+            </header>
+
+            <div class="videoaula-embed">
+              <iframe
+                id="videoaulaFrame"
+                src="videoaula.html"
+                title="Videoaula: Fundamentos do Linux, primeiros passos"
+                allow="fullscreen"
+              ></iframe>
+            </div>
+
+            <footer class="video-player-foot">
+              <div class="video-progress">
+                <div class="video-progress-head">
+                  <span class="goal-label">Seu progresso no vídeo</span>
+                  <span id="videoProgressText">Assista a pelo menos 80% das cenas para concluir.</span>
+                </div>
+                <div
+                  id="videoProgressBar"
+                  class="video-progress-track"
+                  role="progressbar"
+                  aria-label="Progresso na videoaula"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
+                  <span id="videoProgressFill" class="video-progress-fill"></span>
+                </div>
+              </div>
+              <div class="video-help">
+                <p class="video-shortcuts">
+                  Atalhos (clique no vídeo): <kbd>Espaço</kbd> pausa · <kbd>←</kbd><kbd>→</kbd> cenas ·
+                  <kbd>F</kbd> tela cheia · <kbd>L</kbd> legendas
+                </p>
+                <a class="video-popout" href="videoaula.html" target="_blank" rel="noopener">
+                  Abrir em outra aba ↗ <small>(não conta no progresso)</small>
+                </a>
+              </div>
+            </footer>
+          </article>
 
           <div class="content-grid">
             <div class="text-card">
@@ -376,7 +423,10 @@
           <div class="directory-grid">
             <article class="dir-card">
               <h3>/bin</h3>
-              <p>Programas essenciais do sistema, como <code>ls</code>, <code>cp</code> e <code>bash</code>.</p>
+              <p>
+                Programas essenciais do sistema, como <code>ls</code>, <code>cp</code> e <code>bash</code>.
+                No Ubuntu atual, <code>/bin</code> é um atalho para <code>/usr/bin</code>.
+              </p>
             </article>
             <article class="dir-card">
               <h3>/boot</h3>
@@ -581,7 +631,7 @@
                 <div class="terminal-line is-hint">Dica: digite help para ver os comandos. Tab completa nomes e ↑ repete comandos.</div>
               </div>
               <form id="terminalForm" class="terminal-form">
-                <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@linux:~$</label>
+                <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@ubuntu:~$</label>
                 <input
                   id="terminalInput"
                   type="text"
@@ -1001,7 +1051,7 @@
             <div><dt>Kernel</dt><dd>Núcleo do sistema operacional; controla hardware, memória e processos.</dd></div>
             <div><dt>Shell</dt><dd>Programa que interpreta os comandos digitados. O mais comum é o <code>bash</code>.</dd></div>
             <div><dt>Terminal</dt><dd>Janela onde você conversa com o shell digitando comandos.</dd></div>
-            <div><dt>Prompt</dt><dd>Texto antes do cursor, como <code>aluno@linux:~$</code>: usuário, máquina e pasta atual.</dd></div>
+            <div><dt>Prompt</dt><dd>Texto antes do cursor, como <code>aluno@ubuntu:~$</code>: usuário, máquina e pasta atual.</dd></div>
             <div><dt>Distribuição</dt><dd>Pacote completo de Linux: kernel + programas + instalador. Ex.: Ubuntu.</dd></div>
             <div><dt>Diretório</dt><dd>O mesmo que pasta.</dd></div>
             <div><dt>Raiz (<code>/</code>)</dt><dd>Diretório inicial de onde partem todos os outros.</dd></div>

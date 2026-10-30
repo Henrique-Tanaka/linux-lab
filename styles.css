@@ -90,6 +90,9 @@ section[id] {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -154,7 +157,7 @@ section[id] {
   align-items: start;
 }
 
-.hero .video-card {
+.hero-side {
   margin-top: 3.5rem;
 }
 
@@ -223,7 +226,6 @@ section[id] {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 1rem 1.1rem;
-  max-width: 360px;
 }
 
 .course-progress-card .goal-label {
@@ -291,6 +293,14 @@ section[id] {
   transform: translateY(-1px);
 }
 
+.primary-btn:hover {
+  box-shadow: 0 14px 24px rgba(20, 184, 122, 0.32);
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .video-card,
 .text-card,
 .diagram-card,
@@ -310,21 +320,6 @@ section[id] {
   box-shadow: var(--shadow);
 }
 
-.video-card {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  padding: 1rem;
-}
-
-.video-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0.8rem;
-}
-
 .dot {
   width: 10px;
   height: 10px;
@@ -336,40 +331,186 @@ section[id] {
   background: var(--green);
 }
 
-.video-frame {
-  min-height: 260px;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+/* Videoaula do módulo 1: player escuro, como uma tela de vídeo dentro da seção clara */
+.video-player {
+  background: linear-gradient(135deg, #0d1b2a 0%, #142c46 52%, #1c3f5a 100%);
+  border-color: #1c3f5a;
+  box-shadow: 0 24px 60px rgba(13, 27, 42, 0.28);
+  color: #ffffff;
+  padding: 1.4rem;
+  margin-bottom: 2rem;
+  scroll-margin-top: 90px;
+}
+
+.video-player-head {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
-  text-align: center;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.video-player-title {
+  display: flex;
+  align-items: center;
   gap: 1rem;
-  padding: 1.2rem;
-  color: rgba(255, 255, 255, 0.78);
+}
+
+.play-badge {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  color: #ffffff;
+  background: rgba(20, 184, 122, 0.16);
+  border: 1px solid rgba(20, 184, 122, 0.5);
+}
+
+.video-player-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9ce7c5;
+}
+
+.video-player-title h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.video-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.video-meta li {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+}
+
+.videoaula-embed iframe {
+  display: block;
+  width: 100%;
+  height: 760px;
+  border: 0;
+  background: transparent;
+  color-scheme: light;
+}
+
+.video-player-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1rem 2rem;
+  align-items: center;
+  margin-top: 1.2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.video-progress-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.video-progress-head .goal-label {
+  color: #dfeeff;
+}
+
+.video-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
 
-.video-frame video {
+.video-progress-fill {
   display: block;
-  width: 100%;
-  max-height: 270px;
-  border-radius: 12px;
-  background: #000;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), #7ae3a1);
+  transition: width 0.25s ease;
 }
 
-.play-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(20, 184, 122, 0.14);
-  border: 1px solid rgba(20, 184, 122, 0.4);
-  display: grid;
-  place-items: center;
-  font-size: 1.8rem;
-  color: white;
+.video-player.is-watched .video-progress-head #videoProgressText {
+  color: #7ef0b2;
+  font-weight: 700;
+}
+
+.video-help {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.video-shortcuts {
+  margin: 0;
+}
+
+.video-player kbd {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.video-popout {
+  color: #9ce7c5;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.video-popout small {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 920px) {
+  .video-player-foot {
+    grid-template-columns: 1fr;
+  }
+
+  .video-help {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .video-player {
+    padding: 1rem;
+  }
+
+  .play-badge {
+    display: none;
+  }
 }
 
 .section-heading {
@@ -784,13 +925,15 @@ code {
 }
 
 .module-card {
+  position: relative;
+  display: block;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 1.25rem;
   box-shadow: var(--shadow);
   border-top: 4px solid transparent;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -799,6 +942,7 @@ code {
 
 .module-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(16, 24, 40, 0.16);
 }
 
 .module-card.is-complete {
@@ -1114,7 +1258,6 @@ code {
     text-align: center;
   }
 
-  .questions-meta,
   .quiz-meta {
     flex-direction: column;
     align-items: flex-start;
@@ -1197,8 +1340,12 @@ kbd {
  * Ajustes gerais
  * ------------------------------------------------------------------ */
 
-.secondary-btn {
-  display: inline-block;
+.noscript-banner {
+  margin: 0;
+  padding: 0.9rem 1.2rem;
+  background: #fff4df;
+  color: #7a4f00;
+  text-align: center;
 }
 
 .section-intro {
@@ -1222,25 +1369,8 @@ kbd {
   color: #ffffff;
 }
 
-.video-fallback {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.video-fallback[hidden],
-.video-frame video[hidden] {
-  display: none;
-}
-
 .section-heading .eyebrow {
   color: #0e7a55;
-}
-
-.video-fallback p {
-  margin: 0;
-  max-width: 34ch;
 }
 
 .path-symbols {
@@ -2122,12 +2252,6 @@ kbd {
  * Progresso da aula
  * ------------------------------------------------------------------ */
 
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
 .brand-progress {
   font-size: 0.72rem;
   letter-spacing: 0.02em;
@@ -2144,9 +2268,6 @@ kbd {
   padding-bottom: 0.2rem;
 }
 
-.course-progress-card {
-  max-width: 440px;
-}
 
 .course-progress-head {
   display: flex;
@@ -2326,10 +2447,6 @@ li.is-done > .objective-mark {
   color: var(--muted);
 }
 
-.module-card {
-  position: relative;
-}
-
 .module-progress {
   display: block;
   height: 6px;
@@ -2415,7 +2532,7 @@ li.is-done > .objective-mark {
     grid-template-columns: 1fr;
   }
 
-  .hero .video-card {
+  .hero-side {
     margin-top: 0;
   }
 
