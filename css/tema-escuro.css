@@ -1,0 +1,97 @@
+/* ------------------------------------------------------------------
+ * Tema escuro
+ * Ativado pelo botão do topo (data-theme="dark" no <html>).
+ * As cores claras do estilos.css são variáveis; aqui ficam as versões
+ * escuras e os poucos blocos que têm cor própria.
+ * ------------------------------------------------------------------ */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1520;
+  --panel: #132131;
+  --panel-alt: #182a3d;
+  --blue: #5b8cff;
+  --blue-soft: #1c2f4b;
+  --green-soft: #12352a;
+  --text: #e3eaf2;
+  --muted: #9fb0c3;
+  --border: #253a50;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --heading: #f3f7fb;
+  --heading-soft: #c3d4e8;
+  --eyebrow: #7ef0b2;
+  --ok-text: #7ef0b2;
+  --warn-text: #ffd98a;
+  --warn-bg: #3a2c12;
+  --err-text: #ffb3bd;
+  --err-bg: #3a1820;
+  --info-text: #8fb4ff;
+  --alt-bg: #0f1c2a;
+  --chip: #1b2c3f;
+  --surface-soft: #172a3d;
+  --surface-hover: #1e3550;
+  --track: #253a50;
+}
+
+:root[data-theme="dark"] .copy-btn,
+:root[data-theme="dark"] .mini-btn {
+  color: #dbe7ff;
+}
+
+:root[data-theme="dark"] .box.user {
+  background: #1c2f4b;
+  color: #cfe0ff;
+}
+
+:root[data-theme="dark"] .box.app {
+  background: #12352a;
+}
+
+:root[data-theme="dark"] .box.os {
+  background: #2a2147;
+  color: #d5c6ff;
+}
+
+:root[data-theme="dark"] .reset-btn {
+  background: #12352a;
+}
+
+:root[data-theme="dark"] .summary-box {
+  background: linear-gradient(135deg, #132a40, #12352a);
+}
+
+:root[data-theme="dark"] .career-section {
+  background: linear-gradient(180deg, #0b1520 0%, #0f2a22 100%);
+}
+
+:root[data-theme="dark"] .terminal-slot .terminal-placeholder {
+  border-color: #3b5068;
+}
+
+:root[data-theme="dark"] .scenario-btn,
+:root[data-theme="dark"] .quiz-reset-btn {
+  background: linear-gradient(135deg, #2b4f7a, var(--blue));
+}
+
+:root[data-theme="dark"] th {
+  background: #1c3550;
+}
+
+:root[data-theme="dark"] .answer-list button.is-wrong {
+  border-color: #ff6b7d;
+}
+
+:root[data-theme="dark"] .site-footer,
+:root[data-theme="dark"] .tree-card,
+:root[data-theme="dark"] .ls-line,
+:root[data-theme="dark"] .terminal-head {
+  background: #07101a;
+}
+
+:root[data-theme="dark"] .module-card-game {
+  border-color: #2b4f7a;
+}
+
+:root[data-theme="dark"] .video-player {
+  border-color: #2b4f7a;
+}

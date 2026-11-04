@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulo 2 · Conhecendo o Linux · Linux Lab</title>
+    <meta
+      name="description"
+      content="Módulo 2 da aula de Linux: Conhecendo o Linux."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Módulo 2 · Conhecendo o Linux" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="index.html" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <ul class="menu" id="mainMenu">
+          <li><a href="videoaula.html">Videoaula</a></li>
+          <li><a href="modulo-1.html">Sistema operacional</a></li>
+          <li><a href="modulo-2.html">Linux</a></li>
+          <li><a href="modulo-3.html">Arquivos</a></li>
+          <li><a href="modulo-4.html">Comandos</a></li>
+          <li><a href="modulo-5.html">Permissões</a></li>
+          <li><a href="modulo-6.html">Prática</a></li>
+          <li><a href="modulo-7.html">Carreira</a></li>
+          <li><a href="glossario.html">Glossário</a></li>
+        </ul>
+        <div class="nav-tools">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Escuro</span>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            aria-controls="mainMenu"
+          >☰</button>
+        </div>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="linux" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">2. Conhecendo o Linux</p>
+            <h2>O que é Linux?</h2>
+          </div>
+
+          <div class="content-grid">
+            <div class="text-card">
+              <h3>Um pouco de história</h3>
+              <p>
+                Em <strong>1991</strong>, o estudante finlandês <strong>Linus Torvalds</strong> começou a
+                escrever, como um projeto pessoal, um <em>kernel</em> (núcleo) de sistema operacional.
+                Ele publicou o código na internet e pessoas do mundo todo passaram a contribuir.
+              </p>
+              <p>
+                Desde 1983, o <strong>Projeto GNU</strong>, iniciado por <strong>Richard Stallman</strong>,
+                desenvolvia ferramentas livres (compilador, shell, utilitários). O kernel Linux somado
+                às ferramentas GNU formou um sistema completo; por isso muita gente diz
+                <strong>GNU/Linux</strong>.
+              </p>
+            </div>
+
+            <div class="text-card">
+              <h3>Software livre e código aberto</h3>
+              <p>
+                O Linux é distribuído sob a licença <strong>GPL</strong>. Isso garante quatro liberdades a
+                qualquer pessoa:
+              </p>
+              <ul class="check-list">
+                <li><strong>Usar</strong> o programa para qualquer finalidade.</li>
+                <li><strong>Estudar</strong> como ele funciona, lendo o código-fonte.</li>
+                <li><strong>Modificar</strong> e adaptar às suas necessidades.</li>
+                <li><strong>Distribuir</strong> cópias, originais ou modificadas.</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3 class="block-title">Estrutura do Linux</h3>
+          <div class="linux-grid">
+            <div class="info-panel">
+              <h3>Kernel</h3>
+              <p>É o núcleo do sistema. Ele gerencia memória, processos, arquivos e dispositivos.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Distribuição</h3>
+              <p>É a combinação do kernel com ferramentas, programas e pacotes do sistema.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Interface gráfica</h3>
+              <p>É a camada visual para interagir com o sistema, como janelas e ícones.</p>
+            </div>
+            <div class="info-panel">
+              <h3>Shell</h3>
+              <p>É o interpretador de comandos (como o <code>bash</code>), onde você digita ordens para o sistema.</p>
+            </div>
+          </div>
+
+          <h3 class="block-title">Distribuições populares</h3>
+          <div class="distribution-cards">
+            <article class="dist-card">
+              <h3>Ubuntu</h3>
+              <p>Focado em facilidade de uso e com ampla adoção em desktops e servidores.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Debian</h3>
+              <p>Conhecida pela estabilidade e confiabilidade; é a base do Ubuntu e de muitas outras.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Fedora</h3>
+              <p>Traz tecnologias novas rapidamente e é usada em ambientes de inovação e desenvolvimento.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Linux Mint</h3>
+              <p>Baseada no Ubuntu, tem visual familiar para quem está vindo do Windows.</p>
+            </article>
+            <article class="dist-card">
+              <h3>Arch Linux</h3>
+              <p>Minimalista: você monta o sistema peça por peça. Ótima para aprender a fundo.</p>
+            </article>
+          </div>
+
+          <div class="use-cases">
+            <h3>Onde o Linux aparece?</h3>
+            <ul>
+              <li>Computadores pessoais e notebooks.</li>
+              <li>Servidores web e bancos de dados: a maior parte da internet roda em Linux.</li>
+              <li>Celulares Android, que usam o kernel Linux.</li>
+              <li>Dispositivos embarcados, roteadores e smart TVs.</li>
+              <li>Ambientes de desenvolvimento, nuvem e supercomputadores.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Navegação entre módulos">
+        <div class="container pager-inner">
+          <a class="pager-link pager-prev" href="modulo-1.html"><small>← Anterior</small><strong>Módulo 1 · Sistema operacional</strong></a>
+          <a class="pager-link pager-next" href="modulo-3.html"><small>Próximo →</small><strong>Módulo 3 · Arquivos e diretórios</strong></a>
+        </div>
+      </nav>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#conteudo">↑ Voltar ao topo</a>
+        <a href="glossario.html">Glossário</a>
+      </div>
+    </footer>
+
+    <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+
+    <script src="js/nucleo.js"></script>
+    <script src="js/videoaula.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/terminal-arquivos.js"></script>
+    <script src="js/terminal-comandos.js"></script>
+    <script src="js/terminal-interface.js"></script>
+    <script src="js/permissoes.js"></script>
+    <script src="js/carreira.js"></script>
+    <script src="js/progresso.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

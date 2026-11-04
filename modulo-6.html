@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulo 6 · Prática e revisão · Linux Lab</title>
+    <meta
+      name="description"
+      content="Módulo 6 da aula de Linux: Prática e revisão."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Módulo 6 · Prática e revisão" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="index.html" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <ul class="menu" id="mainMenu">
+          <li><a href="videoaula.html">Videoaula</a></li>
+          <li><a href="modulo-1.html">Sistema operacional</a></li>
+          <li><a href="modulo-2.html">Linux</a></li>
+          <li><a href="modulo-3.html">Arquivos</a></li>
+          <li><a href="modulo-4.html">Comandos</a></li>
+          <li><a href="modulo-5.html">Permissões</a></li>
+          <li><a href="modulo-6.html">Prática</a></li>
+          <li><a href="modulo-7.html">Carreira</a></li>
+          <li><a href="glossario.html">Glossário</a></li>
+        </ul>
+        <div class="nav-tools">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Escuro</span>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            aria-controls="mainMenu"
+          >☰</button>
+        </div>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="pratique" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">6. Pratique e revise</p>
+            <h2>Atividade guiada</h2>
+          </div>
+
+          <div class="activity-box">
+            <h3>Vamos criar uma pasta de estudos</h3>
+            <div class="activity-meta">
+              <div class="goal-box">
+                <span class="goal-label">Objetivo da etapa</span>
+                <p>
+                  Organizar um ambiente de estudos e validar os comandos básicos do Linux em uma
+                  sequência realista. Digite os comandos no terminal ou use os botões.
+                </p>
+              </div>
+              <div class="progress-box">
+                <span class="goal-label">Progresso da prática</span>
+                <div class="step-list" aria-live="polite">
+                  <span class="step-item" data-step="0">1. Criar pasta</span>
+                  <span class="step-item" data-step="1">2. Arquivo</span>
+                  <span class="step-item" data-step="2">3. Listar</span>
+                  <span class="step-item" data-step="3">4. Copiar</span>
+                </div>
+              </div>
+            </div>
+
+            <ol class="activity-steps">
+              <li>Na sua pasta pessoal, crie uma pasta chamada <code>estudos</code>.</li>
+              <li>Dentro dela, crie um arquivo chamado <code>resumo.txt</code>.</li>
+              <li>Liste o conteúdo da pasta <code>estudos</code>.</li>
+              <li>Copie o arquivo para <code>estudos/resumo-copia.txt</code>.</li>
+            </ol>
+            <div class="activity-actions">
+              <button class="mini-btn" type="button" data-command="mkdir ~/estudos">Executar 1</button>
+              <button class="mini-btn" type="button" data-command="touch ~/estudos/resumo.txt">Executar 2</button>
+              <button class="mini-btn" type="button" data-command="ls ~/estudos">Executar 3</button>
+              <button class="mini-btn" type="button" data-command="cp ~/estudos/resumo.txt ~/estudos/resumo-copia.txt">Executar 4</button>
+              <button class="mini-btn reset-btn" type="button" data-command="reset">Resetar ambiente</button>
+            </div>
+          </div>
+
+          <div class="terminal-slot">
+            <div id="terminalCard" class="terminal-card" role="region" aria-label="Terminal simulado">
+                          <div class="terminal-head">
+                            <span class="terminal-label">Terminal simulado</span>
+                            <span class="terminal-status">digite <strong>help</strong> para começar</span>
+                          </div>
+                          <div id="terminalOutput" class="terminal-output" role="log" aria-live="polite">
+                            <div class="terminal-line">Bem-vindo ao terminal simulado do Linux.</div>
+                            <div class="terminal-line is-hint">Dica: digite help para ver os comandos. Tab completa nomes e ↑ repete comandos.</div>
+                          </div>
+                          <form id="terminalForm" class="terminal-form">
+                            <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@ubuntu:~$</label>
+                            <input
+                              id="terminalInput"
+                              type="text"
+                              autocomplete="off"
+                              autocapitalize="off"
+                              spellcheck="false"
+                              enterkeyhint="send"
+                            />
+                          </form>
+                        </div>
+          </div>
+
+          <div class="mission-panel">
+            <h3>Desafios reais do terminal</h3>
+            <p>
+              Agora você vai agir como um profissional de TI em situações reais: organizar pastas,
+              registrar arquivos, listar informações e preparar backups usando comandos do Linux.
+            </p>
+          </div>
+
+          <div class="scenario-grid">
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 1</p>
+              <h3>Loja de e-commerce</h3>
+              <p class="scenario-goal">Objetivo: organizar o estoque e preparar o fechamento diário.</p>
+              <ul>
+                <li>Criar pastas para produtos e vendas.</li>
+                <li>Registrar o arquivo de estoque do dia.</li>
+                <li>Listar e conferir os dados antes do relatório.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="ecommerce">Executar desafio</button>
+            </article>
+
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 2</p>
+              <h3>Empresa de suporte</h3>
+              <p class="scenario-goal">Objetivo: separar chamados por status e manter registros.</p>
+              <ul>
+                <li>Criar pastas por status de atendimento.</li>
+                <li>Registrar um novo chamado de cliente.</li>
+                <li>Conferir a lista final do suporte.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="support">Executar desafio</button>
+            </article>
+
+            <article class="scenario-card">
+              <p class="scenario-tag">Missão 3</p>
+              <h3>Departamento financeiro</h3>
+              <p class="scenario-goal">Objetivo: manter backups de documentos e relatórios mensais.</p>
+              <ul>
+                <li>Criar estrutura por ano e mês.</li>
+                <li>Salvar o arquivo de contas.</li>
+                <li>Duplicar o arquivo para backup e conferir as permissões.</li>
+              </ul>
+              <button class="scenario-btn" type="button" data-scenario="finance">Executar desafio</button>
+            </article>
+          </div>
+
+          <div class="reference-section">
+            <div class="reference-grid">
+              <article class="reference-card">
+                <span class="reference-label">Checklist</span>
+                <h3>Comandos essenciais</h3>
+                <ul>
+                  <li><code>pwd</code>: onde você está</li>
+                  <li><code>ls</code>: lista conteúdos</li>
+                  <li><code>cd</code>: muda de pasta</li>
+                  <li><code>mkdir</code>: cria pastas</li>
+                  <li><code>touch</code>: cria arquivos</li>
+                  <li><code>chmod</code>: muda permissões</li>
+                </ul>
+              </article>
+
+              <article class="reference-card">
+                <span class="reference-label">Resumo</span>
+                <h3>O que aprender</h3>
+                <ul>
+                  <li>Entender diretórios</li>
+                  <li>Organizar arquivos</li>
+                  <li>Ler e alterar permissões</li>
+                  <li>Aplicar comandos no dia a dia</li>
+                </ul>
+              </article>
+
+              <article class="reference-card">
+                <span class="reference-label">Dica</span>
+                <h3>Próximo passo</h3>
+                <ul>
+                  <li>Treine os comandos</li>
+                  <li>Repita os desafios</li>
+                  <li>Consulte o <code>man</code> dos comandos</li>
+                  <li>Crie sua própria pasta de estudos</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="quiz-section">
+            <h3>Questões de revisão</h3>
+            <div id="quizContainer" class="quiz-container"></div>
+          </div>
+
+          <div class="summary-box">
+            <h3>O que você aprendeu?</h3>
+            <ul>
+              <li>O sistema operacional coordena o uso dos recursos do computador.</li>
+              <li>O Linux nasceu em 1991, é software livre e tem várias distribuições.</li>
+              <li>Tudo no Linux parte da raiz <code>/</code>, organizada em diretórios com funções definidas.</li>
+              <li>Comandos simples ajudam a navegar, criar, copiar, mover e apagar arquivos.</li>
+              <li>Permissões (<code>rwx</code> para dono, grupo e outros) definem quem pode acessar ou alterar dados.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Navegação entre módulos">
+        <div class="container pager-inner">
+          <a class="pager-link pager-prev" href="modulo-5.html"><small>← Anterior</small><strong>Módulo 5 · Usuários e permissões</strong></a>
+          <a class="pager-link pager-next" href="modulo-7.html"><small>Próximo →</small><strong>Módulo 7 · Modo carreira</strong></a>
+        </div>
+      </nav>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#conteudo">↑ Voltar ao topo</a>
+        <a href="glossario.html">Glossário</a>
+      </div>
+    </footer>
+
+    <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+
+    <script src="js/nucleo.js"></script>
+    <script src="js/videoaula.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/terminal-arquivos.js"></script>
+    <script src="js/terminal-comandos.js"></script>
+    <script src="js/terminal-interface.js"></script>
+    <script src="js/permissoes.js"></script>
+    <script src="js/carreira.js"></script>
+    <script src="js/progresso.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

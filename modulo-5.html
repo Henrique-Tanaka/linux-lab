@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulo 5 · Usuários e permissões · Linux Lab</title>
+    <meta
+      name="description"
+      content="Módulo 5 da aula de Linux: Usuários e permissões."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Módulo 5 · Usuários e permissões" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="index.html" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <ul class="menu" id="mainMenu">
+          <li><a href="videoaula.html">Videoaula</a></li>
+          <li><a href="modulo-1.html">Sistema operacional</a></li>
+          <li><a href="modulo-2.html">Linux</a></li>
+          <li><a href="modulo-3.html">Arquivos</a></li>
+          <li><a href="modulo-4.html">Comandos</a></li>
+          <li><a href="modulo-5.html">Permissões</a></li>
+          <li><a href="modulo-6.html">Prática</a></li>
+          <li><a href="modulo-7.html">Carreira</a></li>
+          <li><a href="glossario.html">Glossário</a></li>
+        </ul>
+        <div class="nav-tools">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Escuro</span>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            aria-controls="mainMenu"
+          >☰</button>
+        </div>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="usuarios" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">5. Usuários e permissões</p>
+            <h2>Quem pode fazer o quê?</h2>
+          </div>
+
+          <div class="permission-grid">
+            <div class="permission-card">
+              <h3>Usuário comum</h3>
+              <p>
+                Tem acesso à própria pasta pessoal (<code>~</code>) e a <code>/tmp</code>. Pode ler boa parte do
+                sistema, mas não alterar arquivos de outros usuários nem configurações.
+              </p>
+            </div>
+            <div class="permission-card">
+              <h3>Administrador (root)</h3>
+              <p>
+                O usuário <em>root</em> pode tudo: alterar configurações, instalar programas e apagar
+                qualquer arquivo. Por isso, não se trabalha logado como root no dia a dia.
+              </p>
+            </div>
+          </div>
+
+          <div class="text-card sudo-card">
+            <h3><code>sudo</code>: agir como administrador só quando precisar</h3>
+            <p>
+              Colocar <code>sudo</code> antes de um comando o executa com poderes de root, por exemplo
+              <code>sudo apt update</code> para atualizar a lista de programas. O sistema pede a
+              <strong>sua</strong> senha e registra o uso. Use com cuidado: um comando errado com
+              <code>sudo</code> pode danificar o sistema.
+            </p>
+          </div>
+
+          <div class="access-table">
+            <div class="perm-boxes" aria-hidden="true">
+              <span class="perm">r</span>
+              <span class="perm">w</span>
+              <span class="perm">x</span>
+            </div>
+            <dl class="perm-legend">
+              <div><dt>r = leitura</dt><dd>Arquivo: ver o conteúdo. Pasta: listar o que tem dentro.</dd></div>
+              <div><dt>w = escrita</dt><dd>Arquivo: alterar. Pasta: criar, renomear e apagar itens.</dd></div>
+              <div><dt>x = execução</dt><dd>Arquivo: rodar como programa. Pasta: entrar nela (<code>cd</code>).</dd></div>
+            </dl>
+          </div>
+
+          <div class="ls-breakdown text-card">
+            <h3>Lendo a saída de <code>ls -l</code></h3>
+            <p>Cada linha do <code>ls -l</code> mostra as permissões em três grupos de três letras:</p>
+            <pre class="ls-line" aria-label="Exemplo: -rwxr-xr-- 1 aluno aluno 52 out 23 10:00 script.sh"><span class="seg seg-type">-</span><span class="seg seg-owner">rwx</span><span class="seg seg-group">r-x</span><span class="seg seg-other">r--</span> 1 <span class="seg seg-user">aluno</span> <span class="seg seg-grp">aluno</span> 52 out 23 10:00 <span class="seg seg-name">script.sh</span></pre>
+            <ul class="ls-legend">
+              <li><span class="swatch seg-type">-</span> Tipo: <code>-</code> arquivo, <code>d</code> diretório.</li>
+              <li><span class="swatch seg-owner">rwx</span> <strong>Dono</strong>: pode ler, escrever e executar.</li>
+              <li><span class="swatch seg-group">r-x</span> <strong>Grupo</strong>: pode ler e executar.</li>
+              <li><span class="swatch seg-other">r--</span> <strong>Outros</strong>: só podem ler.</li>
+              <li><span class="swatch seg-user">aluno</span> <span class="swatch seg-grp">aluno</span> Usuário dono e grupo dono.</li>
+            </ul>
+            <p class="ls-note">O traço (<code>-</code>) significa “permissão ausente”.</p>
+          </div>
+
+          <div class="permission-example text-card">
+            <p>Se um arquivo tiver permissão <code>rw-r--r--</code>, isso significa:</p>
+            <ul>
+              <li><code>rw-</code>: o <strong>dono</strong> pode ler e escrever.</li>
+              <li><code>r--</code>: o <strong>grupo</strong> pode apenas ler.</li>
+              <li><code>r--</code>: <strong>outros</strong> também podem apenas ler.</li>
+            </ul>
+          </div>
+
+          <div class="octal-box text-card">
+            <h3>Permissões em números: o comando <code>chmod</code></h3>
+            <p>
+              O <code>chmod</code> muda as permissões. A forma numérica soma valores para cada grupo:
+              <strong>r = 4</strong>, <strong>w = 2</strong>, <strong>x = 1</strong>. Por exemplo,
+              <code>rwx</code> = 4 + 2 + 1 = <strong>7</strong> e <code>r-x</code> = 4 + 0 + 1 = <strong>5</strong>.
+            </p>
+            <div class="octal-examples">
+              <div><code>chmod 644 arquivo</code><span><code>rw-r--r--</code>: padrão para documentos.</span></div>
+              <div><code>chmod 755 script.sh</code><span><code>rwxr-xr-x</code>: programas e scripts.</span></div>
+              <div><code>chmod 600 senha.txt</code><span><code>rw-------</code>: só o dono acessa.</span></div>
+              <div><code>chmod +x script.sh</code><span>Forma simbólica: adiciona execução.</span></div>
+            </div>
+          </div>
+
+          <div id="permBuilder" class="perm-builder text-card">
+            <h3>Monte a permissão</h3>
+            <p>Marque o que cada grupo pode fazer e veja o resultado em letras, em número e como comando.</p>
+            <div class="perm-builder-layout">
+              <table class="perm-builder-table">
+                <caption class="visually-hidden">Escolha das permissões por grupo</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Quem</th>
+                    <th scope="col">Ler (r)</th>
+                    <th scope="col">Escrever (w)</th>
+                    <th scope="col">Executar (x)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Dono</th>
+                    <td><input type="checkbox" data-who="0" data-perm="r" aria-label="Dono pode ler" checked /></td>
+                    <td><input type="checkbox" data-who="0" data-perm="w" aria-label="Dono pode escrever" checked /></td>
+                    <td><input type="checkbox" data-who="0" data-perm="x" aria-label="Dono pode executar" /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Grupo</th>
+                    <td><input type="checkbox" data-who="1" data-perm="r" aria-label="Grupo pode ler" checked /></td>
+                    <td><input type="checkbox" data-who="1" data-perm="w" aria-label="Grupo pode escrever" /></td>
+                    <td><input type="checkbox" data-who="1" data-perm="x" aria-label="Grupo pode executar" /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Outros</th>
+                    <td><input type="checkbox" data-who="2" data-perm="r" aria-label="Outros podem ler" checked /></td>
+                    <td><input type="checkbox" data-who="2" data-perm="w" aria-label="Outros podem escrever" /></td>
+                    <td><input type="checkbox" data-who="2" data-perm="x" aria-label="Outros podem executar" /></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="perm-result" aria-live="polite">
+                <div><span class="goal-label">Letras</span><code id="permSymbolic">rw-r--r--</code></div>
+                <div><span class="goal-label">Número</span><code id="permOctal">644</code></div>
+                <div><span class="goal-label">Comando</span><code id="permCommand">chmod 644 arquivo.txt</code></div>
+                <p id="permExplain" class="perm-explain"></p>
+              </div>
+            </div>
+            <div class="activity-actions">
+              <span class="goal-label preset-label">Exemplos:</span>
+              <button type="button" class="mini-btn" data-preset="644">644</button>
+              <button type="button" class="mini-btn" data-preset="755">755</button>
+              <button type="button" class="mini-btn" data-preset="600">600</button>
+              <button type="button" class="mini-btn" data-preset="777">777</button>
+            </div>
+          </div>
+
+          <div class="activity-box">
+            <h3>Experimente no terminal</h3>
+            <p>
+              Na sua pasta pessoal existe um <code>script.sh</code> <strong>sem</strong> permissão de execução.
+              Rode os comandos em ordem e observe o que muda:
+            </p>
+            <div class="activity-actions">
+              <button class="mini-btn" type="button" data-command="ls -l ~">1. ls -l ~</button>
+              <button class="mini-btn" type="button" data-command="~/script.sh">2. Executar o script</button>
+              <button class="mini-btn" type="button" data-command="chmod +x ~/script.sh">3. chmod +x ~/script.sh</button>
+              <button class="mini-btn" type="button" data-command="~/script.sh">4. Executar de novo</button>
+              <button class="mini-btn" type="button" data-command="cd /root">5. Tentar entrar em /root</button>
+            </div>
+          </div>
+
+          <div class="terminal-slot">
+            <div id="terminalCard" class="terminal-card" role="region" aria-label="Terminal simulado">
+                          <div class="terminal-head">
+                            <span class="terminal-label">Terminal simulado</span>
+                            <span class="terminal-status">digite <strong>help</strong> para começar</span>
+                          </div>
+                          <div id="terminalOutput" class="terminal-output" role="log" aria-live="polite">
+                            <div class="terminal-line">Bem-vindo ao terminal simulado do Linux.</div>
+                            <div class="terminal-line is-hint">Dica: digite help para ver os comandos. Tab completa nomes e ↑ repete comandos.</div>
+                          </div>
+                          <form id="terminalForm" class="terminal-form">
+                            <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@ubuntu:~$</label>
+                            <input
+                              id="terminalInput"
+                              type="text"
+                              autocomplete="off"
+                              autocapitalize="off"
+                              spellcheck="false"
+                              enterkeyhint="send"
+                            />
+                          </form>
+                        </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Navegação entre módulos">
+        <div class="container pager-inner">
+          <a class="pager-link pager-prev" href="modulo-4.html"><small>← Anterior</small><strong>Módulo 4 · Comandos do terminal</strong></a>
+          <a class="pager-link pager-next" href="modulo-6.html"><small>Próximo →</small><strong>Módulo 6 · Prática e revisão</strong></a>
+        </div>
+      </nav>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#conteudo">↑ Voltar ao topo</a>
+        <a href="glossario.html">Glossário</a>
+      </div>
+    </footer>
+
+    <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+
+    <script src="js/nucleo.js"></script>
+    <script src="js/videoaula.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/terminal-arquivos.js"></script>
+    <script src="js/terminal-comandos.js"></script>
+    <script src="js/terminal-interface.js"></script>
+    <script src="js/permissoes.js"></script>
+    <script src="js/carreira.js"></script>
+    <script src="js/progresso.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

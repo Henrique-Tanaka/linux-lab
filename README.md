@@ -4,7 +4,7 @@ Página educacional e interativa para uma aula introdutória de Sistemas Operaci
 
 ## O que tem na página
 
-- **Videoaula narrada** (`videoaula.html`): animação com slides, demonstrações do Ubuntu e do terminal, legendas e narração em português pela voz do navegador, embutida na página. Assistir a pelo menos 80% das cenas conta como objetivo do Módulo 1.
+- **Videoaula narrada** (tela `videoaula.html`, player em `player.html`): animação com slides, demonstrações do Ubuntu e do terminal, legendas e narração em português pela voz do navegador. Assistir a pelo menos 80% das cenas conta como objetivo da aula.
 - **Conteúdo da aula:** o que é um sistema operacional, história e estrutura do Linux, diretórios, caminhos e permissões.
 - **Terminal simulado** no navegador, com sistema de arquivos e permissões (`ls`, `cd`, `mkdir`, `touch`, `cat`, `echo`, `cp`, `mv`, `rm`, `chmod`, `man` e outros), com redirecionamento `>` e `>>`, histórico com ↑ ↓ e autocompletar com Tab.
 - **Monte a permissão:** quadro interativo que converte `rwx` em número e comando `chmod`.
@@ -14,13 +14,29 @@ Página educacional e interativa para uma aula introdutória de Sistemas Operaci
 
 ## Como usar
 
-Abra o arquivo `index.html` em qualquer navegador. Não precisa instalar nada.
+Abra o arquivo `index.html` em qualquer navegador. Não precisa instalar nada. O botão no topo de todas as páginas troca entre o **modo claro e o escuro** (a escolha fica salva; sem escolha, vale o tema do sistema).
 
 ## Arquivos
 
-| Arquivo | Conteúdo |
+A aula é dividida em telas, uma para cada item do menu (Videoaula, Sistema operacional, Linux, Arquivos, Comandos, Permissões, Prática, Carreira e Glossário):
+
+| Página | Conteúdo |
 |---|---|
-| `index.html` | Estrutura e conteúdo da aula |
-| `videoaula.html` | Videoaula narrada (também abre sozinha) |
-| `styles.css` | Visual da página |
-| `script.js` | Terminal simulado, quiz, progresso e modo carreira |
+| `index.html` | Abertura, objetivos, progresso da aula e lista de módulos |
+| `videoaula.html` | Videoaula narrada, com o player embutido |
+| `modulo-1.html` | Sistema operacional |
+| `modulo-2.html` | Conhecendo o Linux |
+| `modulo-3.html` | Arquivos e diretórios |
+| `modulo-4.html` | Comandos do terminal, com terminal simulado |
+| `modulo-5.html` | Usuários e permissões |
+| `modulo-6.html` | Prática, missões e quiz |
+| `modulo-7.html` | Modo carreira |
+| `glossario.html` | Glossário |
+| `player.html` | O player da videoaula (usado dentro de `videoaula.html`; também abre sozinho) |
+
+| Pasta | Arquivos |
+|---|---|
+| `css/` | `estilos.css` (visual e tema claro), `tema-escuro.css` (cores do modo escuro) |
+| `js/` | `tema.js` (claro/escuro), `nucleo.js` (armazenamento e menu), `videoaula.js`, `quiz.js`, `terminal-arquivos.js` (sistema de arquivos e saída), `terminal-comandos.js` (comandos), `terminal-interface.js` (atividade guiada, histórico e Tab, botões), `permissoes.js`, `carreira.js`, `progresso.js`, `inicio.js` |
+
+O progresso, o terminal e a carreira ficam salvos no navegador e valem em todas as páginas.

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulo 4 · Comandos do terminal · Linux Lab</title>
+    <meta
+      name="description"
+      content="Módulo 4 da aula de Linux: Comandos do terminal."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Módulo 4 · Comandos do terminal" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="index.html" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <ul class="menu" id="mainMenu">
+          <li><a href="videoaula.html">Videoaula</a></li>
+          <li><a href="modulo-1.html">Sistema operacional</a></li>
+          <li><a href="modulo-2.html">Linux</a></li>
+          <li><a href="modulo-3.html">Arquivos</a></li>
+          <li><a href="modulo-4.html">Comandos</a></li>
+          <li><a href="modulo-5.html">Permissões</a></li>
+          <li><a href="modulo-6.html">Prática</a></li>
+          <li><a href="modulo-7.html">Carreira</a></li>
+          <li><a href="glossario.html">Glossário</a></li>
+        </ul>
+        <div class="nav-tools">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Escuro</span>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            aria-controls="mainMenu"
+          >☰</button>
+        </div>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="comandos" class="section alt-bg">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">4. Primeiros passos</p>
+            <h2>Comandos básicos do terminal</h2>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <caption class="visually-hidden">Comandos básicos, finalidade e exemplo de uso</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Comando</th>
+                  <th scope="col">Finalidade</th>
+                  <th scope="col">Exemplo</th>
+                  <th scope="col">Copiar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>pwd</code></td>
+                  <td>Mostra o diretório atual.</td>
+                  <td><code>pwd</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="pwd">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>ls</code></td>
+                  <td>Lista arquivos e pastas (<code>-l</code> detalha, <code>-a</code> mostra ocultos).</td>
+                  <td><code>ls -l</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="ls -l">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cd</code></td>
+                  <td>Muda de diretório.</td>
+                  <td><code>cd /home/aluno</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cd /home/aluno">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>mkdir</code></td>
+                  <td>Cria uma nova pasta.</td>
+                  <td><code>mkdir estudos</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="mkdir estudos">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>touch</code></td>
+                  <td>Cria um arquivo vazio.</td>
+                  <td><code>touch resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="touch resumo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>echo</code></td>
+                  <td>Mostra um texto; com <code>&gt;</code> grava o texto em um arquivo.</td>
+                  <td><code>echo "Linux" &gt; resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy='echo "Linux" > resumo.txt'>Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cat</code></td>
+                  <td>Exibe o conteúdo de um arquivo.</td>
+                  <td><code>cat resumo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cat resumo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>cp</code></td>
+                  <td>Copia arquivos (<code>-r</code> para pastas).</td>
+                  <td><code>cp resumo.txt resumo-copia.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="cp resumo.txt resumo-copia.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>mv</code></td>
+                  <td>Move ou renomeia arquivos.</td>
+                  <td><code>mv resumo.txt novo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="mv resumo.txt novo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>rm</code></td>
+                  <td>Apaga arquivos (<code>-r</code> apaga pastas com conteúdo). Não há lixeira!</td>
+                  <td><code>rm novo.txt</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="rm novo.txt">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>rmdir</code></td>
+                  <td>Apaga uma pasta vazia.</td>
+                  <td><code>rmdir estudos</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="rmdir estudos">Copiar</button></td>
+                </tr>
+                <tr>
+                  <td><code>man</code></td>
+                  <td>Abre o manual de um comando.</td>
+                  <td><code>man ls</code></td>
+                  <td><button type="button" class="copy-btn" data-copy="man ls">Copiar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="content-grid tips-grid">
+            <div class="explain-box">
+              <h3>Entendendo cada parte do comando</h3>
+              <p>
+                Um comando costuma ter três partes: <strong>comando</strong>, <strong>opções</strong> e
+                <strong>argumentos</strong>. Em <code>ls -l /etc</code>, <code>ls</code> é o comando,
+                <code>-l</code> é a opção (mostrar detalhes) e <code>/etc</code> é o argumento (onde listar).
+              </p>
+              <p>
+                Já em <code>cp resumo.txt resumo-copia.txt</code>, o sistema copia o arquivo de
+                origem (primeiro argumento) para o destino (segundo argumento).
+              </p>
+            </div>
+
+            <div class="explain-box">
+              <h3>Atalhos e ajuda</h3>
+              <ul class="shortcut-list">
+                <li><kbd>Tab</kbd> completa nomes de comandos, pastas e arquivos.</li>
+                <li><kbd>↑</kbd> <kbd>↓</kbd> navegam pelos comandos já digitados.</li>
+                <li><code>man comando</code> abre o manual completo.</li>
+                <li><code>comando --help</code> mostra um resumo rápido de uso.</li>
+                <li><code>clear</code> limpa a tela do terminal.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="terminal-slot">
+            <div id="terminalCard" class="terminal-card" role="region" aria-label="Terminal simulado">
+                          <div class="terminal-head">
+                            <span class="terminal-label">Terminal simulado</span>
+                            <span class="terminal-status">digite <strong>help</strong> para começar</span>
+                          </div>
+                          <div id="terminalOutput" class="terminal-output" role="log" aria-live="polite">
+                            <div class="terminal-line">Bem-vindo ao terminal simulado do Linux.</div>
+                            <div class="terminal-line is-hint">Dica: digite help para ver os comandos. Tab completa nomes e ↑ repete comandos.</div>
+                          </div>
+                          <form id="terminalForm" class="terminal-form">
+                            <label for="terminalInput" id="terminalPrompt" class="prompt">aluno@ubuntu:~$</label>
+                            <input
+                              id="terminalInput"
+                              type="text"
+                              autocomplete="off"
+                              autocapitalize="off"
+                              spellcheck="false"
+                              enterkeyhint="send"
+                            />
+                          </form>
+                        </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Navegação entre módulos">
+        <div class="container pager-inner">
+          <a class="pager-link pager-prev" href="modulo-3.html"><small>← Anterior</small><strong>Módulo 3 · Arquivos e diretórios</strong></a>
+          <a class="pager-link pager-next" href="modulo-5.html"><small>Próximo →</small><strong>Módulo 5 · Usuários e permissões</strong></a>
+        </div>
+      </nav>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#conteudo">↑ Voltar ao topo</a>
+        <a href="glossario.html">Glossário</a>
+      </div>
+    </footer>
+
+    <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+
+    <script src="js/nucleo.js"></script>
+    <script src="js/videoaula.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/terminal-arquivos.js"></script>
+    <script src="js/terminal-comandos.js"></script>
+    <script src="js/terminal-interface.js"></script>
+    <script src="js/permissoes.js"></script>
+    <script src="js/carreira.js"></script>
+    <script src="js/progresso.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

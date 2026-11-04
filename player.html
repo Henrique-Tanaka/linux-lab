@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Videoaula: Fundamentos do Linux, primeiros passos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>if(window.self!==window.top){document.documentElement.classList.add("embed");document.documentElement.dataset.theme="light";}</script>
+<style>
+:root{
+  --bg:#eef1f5; --fg:#18202c; --muted:#4d5868; --panel:#ffffff; --line:#cdd5e0; --btn:#1b2433; --btnfg:#f2efe6; --focus:#c47f00;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0f141c;--fg:#e9ecf1;--muted:#9aa6b6;--panel:#18202c;--line:#2c3746;--btn:#f6b93b;--btnfg:#1b2433;--focus:#f6b93b;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#0f141c;--fg:#e9ecf1;--muted:#9aa6b6;--panel:#18202c;--line:#2c3746;--btn:#f6b93b;--btnfg:#1b2433;--focus:#f6b93b;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Atkinson Hyperlegible",Verdana,"Segoe UI",system-ui,sans-serif;line-height:1.5}
+.page{max-width:1280px;margin:0 auto;padding:24px 20px 48px}
+.page > h1{font-size:clamp(1.4rem,2.6vw,2rem);margin:0 0 4px;line-height:1.2}
+.page .lede{color:var(--muted);margin:0 0 18px;max-width:72ch}
+
+/* Moldura 16:9 */
+.frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.frame:fullscreen{border-radius:0;aspect-ratio:auto;width:100vw;height:100vh}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;
+  background:#1b2433;color:#f2efe6;font-family:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace}
+
+/* Controles */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.controls button,.controls select{font:inherit;font-size:1rem;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:9px 14px;cursor:pointer}
+.controls select{max-width:100%;text-overflow:ellipsis}
+.controls button.primary{background:var(--btn);color:var(--btnfg);border-color:transparent;font-weight:700;min-width:120px}
+.controls button:focus-visible,.controls select:focus-visible,.chapters button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.status{margin-left:auto;color:var(--muted);font-size:.95rem}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--focus);transition:width .4s}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chapters button{font:inherit;font-size:.92rem;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chapters button.on{background:var(--btn);color:var(--btnfg);border-color:transparent}
+.notes{margin-top:22px;color:var(--muted);font-size:.95rem;max-width:80ch}
+.notes p{margin:.5em 0}
+
+/* Modo embutido (dentro do Linux Lab): controles no tema escuro e verde da plataforma */
+:root.embed{--fg:#eef3f8;--muted:rgba(255,255,255,.72);--panel:rgba(255,255,255,.07);--line:rgba(255,255,255,.16);
+  --btn:#14b87a;--btnfg:#0d1b2a;--focus:#14b87a}
+.embed body{background:transparent}
+.embed .page{max-width:none;padding:0 0 4px}
+.embed .page > h1,.embed .page .lede,.embed .notes{display:none}
+.embed .controls{margin-top:12px}
+.embed .controls button:hover,.embed .chapters button:hover{border-color:rgba(20,184,122,.6)}
+.embed .controls select option{background:#142c46;color:#eef3f8}
+.embed .chapters button.on{font-weight:700}
+
+/* Camadas do palco */
+#layer{position:absolute;inset:0}
+.sec{position:absolute;left:56px;top:40px;z-index:6;font-size:28px;font-weight:700;color:#f6b93b}
+.legend{position:absolute;right:56px;top:36px;z-index:6;font-size:36px;background:#f2efe6;color:#1b2433;padding:12px 26px;border-radius:14px;box-shadow:0 6px 0 #c9c3b3;display:none}
+.legend b{font-family:"JetBrains Mono",ui-monospace,monospace}
+.gui .legend{top:72px}
+.keycast{position:absolute;right:56px;bottom:200px;z-index:7;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:48px;
+  background:#f6b93b;color:#1b2433;padding:14px 28px;border-radius:16px;display:none;white-space:pre}
+.caption{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:8;max-width:1640px;width:max-content;
+  background:rgba(8,12,18,.86);color:#fff;font-size:40px;line-height:1.35;padding:16px 32px;border-radius:14px;text-align:center}
+.caption:empty,.nocap .caption{display:none}
+#cursor{position:absolute;left:0;top:0;z-index:9;width:0;height:0;transition:transform .9s cubic-bezier(.4,.1,.2,1),opacity .3s;opacity:0;pointer-events:none}
+#cursor::before{content:"";position:absolute;left:-38px;top:-38px;width:76px;height:76px;border-radius:50%;background:rgba(246,185,59,.38);border:4px solid #f6b93b}
+#cursor svg{position:absolute;left:-4px;top:-4px;width:46px;height:46px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.ripple{position:absolute;z-index:9;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:5px solid #f6b93b;animation:rip .7s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+
+/* Tela inicial */
+.start{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:rgba(27,36,51,.94)}
+.start button{font:inherit;font-size:56px;font-weight:700;background:#f6b93b;color:#1b2433;border:0;border-radius:20px;padding:26px 60px;cursor:pointer}
+.start p{font-size:32px;color:#c8cfda;margin:0;max-width:1300px;text-align:center}
+.start.hide{display:none}
+
+/* Slides */
+.slide{position:absolute;inset:0;padding:130px 160px 250px;display:flex;flex-direction:column;justify-content:center}
+.slide.center{align-items:center;text-align:center}
+.rv{opacity:0;transform:translateY(28px);animation:rv .8s ease forwards;animation-delay:var(--d,0s)}
+@keyframes rv{to{opacity:1;transform:none}}
+.static .rv{animation:none;opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{animation:none;opacity:1;transform:none}#cursor{transition:none}}
+.t-hero{font-size:132px;font-weight:700;line-height:1.02;margin:0}
+.t-sub{font-size:60px;color:#f6b93b;margin:18px 0 0}
+.t-note{font-size:34px;color:#b9c2cf;margin:0 0 30px}
+.t-q{font-size:78px;line-height:1.18;font-weight:700;max-width:1500px;margin:0}
+.t-h{font-size:72px;font-weight:700;margin:0 0 50px;line-height:1.1}
+.chalk{color:#f6b93b}
+
+
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;width:100%}
+.card{border:4px solid #3b4a63;border-radius:22px;padding:40px 30px;text-align:center;font-size:40px;font-weight:700;background:#222d40;opacity:.35}
+.card .ico{font-size:96px;display:block;margin-bottom:18px}
+.lightup{animation:light .6s ease forwards;animation-delay:var(--d,0s)}
+@keyframes light{to{opacity:1;border-color:#f6b93b}}
+.static .lightup{animation:none;opacity:1;border-color:#f6b93b}
+
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%}
+/* Fluxogramas: caixas posicionadas pelo centro, setas ligando as bordas e desenhadas em sequência */
+.fc{position:relative;flex:none;margin:0 auto}
+.fc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.fc .edge{opacity:0;animation:fcin .01s forwards;animation-delay:var(--d,0s)}
+.fc .edge path.ln{fill:none;stroke:#8aa0c2;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:fcdraw .7s ease forwards;animation-delay:var(--d,0s)}
+.fc .edge path.ah{fill:#8aa0c2;stroke:#8aa0c2;stroke-width:2;stroke-linejoin:round}
+.fc .edge.hot path.ln{stroke:#f6b93b}.fc .edge.hot path.ah{fill:#f6b93b;stroke:#f6b93b}
+.fc .edge.dash path.ln{stroke-dasharray:16 14;stroke-dashoffset:0;animation:none}
+@keyframes fcin{to{opacity:1}}
+@keyframes fcdraw{to{stroke-dashoffset:0}}
+.fn{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:20px;background:#2e3d55;border:4px solid #4f6180;font-size:42px;font-weight:700;line-height:1.12;opacity:0;animation:fnin .6s ease forwards;animation-delay:var(--d,0s)}
+@keyframes fnin{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
+.fn small{display:block;font-size:27px;font-weight:400;color:#c8cfda;margin-top:4px}
+.fn.sm{font-size:34px}
+.fn.hot{background:#f6b93b;color:#1b2433;border-color:#f6b93b}.fn.hot small{color:#1b2433}
+.fn.blue{border-color:#7cc4ff}
+.fn.ghost{background:transparent;border-color:#f6b93b}
+.fn.dashed{background:transparent;border-style:dashed}
+.fn.circle{border-radius:50%}
+.fn.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.fl{position:absolute;transform:translate(-50%,-50%);background:#1b2433;color:#dfe5ee;font-size:27px;padding:2px 14px;border-radius:999px;white-space:nowrap;opacity:0;animation:fcin .4s forwards;animation-delay:var(--d,0s)}
+.static .fc .edge,.static .fl{animation:none;opacity:1}
+.static .fc .edge path.ln{animation:none;stroke-dashoffset:0}
+.static .fn{animation:none;opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fn,.fl,.fc .edge{animation:none;opacity:1}.fc .edge path.ln{animation:none;stroke-dashoffset:0}}
+
+.panel{background:#222d40;border-radius:24px;padding:46px;font-size:40px}
+.panel h3{margin:0 0 20px;font-size:50px}
+.panel .big{font-size:150px;line-height:1.1;display:block;margin-bottom:14px}
+.panel ul{margin:0;padding-left:1.1em}
+.panel li{margin:.2em 0}
+
+.path{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:88px;font-weight:700;background:#0f1520;border-radius:20px;padding:30px 50px;display:inline-block}
+.path .h{color:#7cc4ff}.path .t{color:#f6b93b}
+.eq{font-size:64px;margin:26px 0;color:#c8cfda}
+
+.prompt-big{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:96px;font-weight:700;display:flex;gap:0;margin-top:20px}
+.prompt-big span{display:flex;flex-direction:column;align-items:center}
+.prompt-big em{font-style:normal;font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:30px;font-weight:400;color:#1b2433;background:#f2efe6;border-radius:10px;padding:6px 14px;margin-top:22px}
+.keycap{display:inline-block;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:46px;border:4px solid #f2efe6;border-bottom-width:10px;border-radius:14px;padding:8px 24px;margin:0 8px}
+
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;width:100%}
+.cmdcard{background:#222d40;border-left:10px solid #f6b93b;border-radius:16px;padding:12px 26px;font-size:30px}
+.cmdcard b{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:40px;color:#f6b93b;display:block}
+
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;width:100%}
+.steps li{counter-increment:s;font-size:48px;padding:22px 0 22px 110px;position:relative;border-bottom:2px solid #34425a}
+.steps li::before{content:counter(s);position:absolute;left:0;top:14px;width:80px;height:80px;border-radius:50%;background:#f6b93b;color:#1b2433;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:46px}
+.steps code{font-family:"JetBrains Mono",ui-monospace,monospace;color:#7cc4ff}
+.timer{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:220px;font-weight:700;color:#f6b93b;line-height:1}
+
+/* Terminal */
+.term{position:absolute;left:160px;top:124px;width:1600px;height:680px;background:#0e131c;border-radius:18px;box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden;border:2px solid #3b4a63}
+.term-h{height:60px;background:#2a3446;display:flex;align-items:center;justify-content:center;font-size:26px;color:#dfe5ee;position:relative}
+.term-h .wb{position:absolute;right:20px;display:flex;gap:12px}
+.term-h .wb i{width:24px;height:24px;border-radius:50%;background:#55627a;display:block}
+.term-b{padding:18px 34px;height:620px;overflow:hidden;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:36px;line-height:1.5;white-space:pre;color:#e8ecf2}
+.pu{color:#7be0a6;font-weight:700}.pp{color:#7cc4ff;font-weight:700}
+.cmd{color:#f6b93b;font-weight:700;background:rgba(246,185,59,.12);border-radius:6px}
+.err{color:#ff8a65}
+.caret{display:inline-block;width:.6em;height:1.1em;vertical-align:-.18em;background:#f6b93b;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.perm-t{color:#c8cfda}.perm-u{color:#7be0a6;font-weight:700}.perm-g{color:#7cc4ff;font-weight:700}.perm-o{color:#ffb07a;font-weight:700}
+.permbox{position:absolute;left:240px;right:240px;top:470px;background:#f2efe6;color:#1b2433;border-radius:20px;padding:24px 40px;display:none;align-items:center;gap:40px;font-size:34px;z-index:4}
+.permbox.on{display:flex}
+.permbox .pm{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:64px;font-weight:700;display:flex;gap:16px}
+.permbox .pm span{display:flex;flex-direction:column;align-items:center}
+.permbox .pm em{font-style:normal;font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:26px;font-weight:700}
+.permbox .pm .u{color:#1d8a4f}.permbox .pm .g{color:#1f6fb2}.permbox .pm .o{color:#c2561d}
+
+/* Interface gráfica simulada */
+.desk{position:absolute;inset:0;background:
+  radial-gradient(1200px 800px at 80% 110%,#e9672f 0%,rgba(233,103,47,0) 60%),
+  radial-gradient(1000px 700px at 10% 0%,#5a2a5e 0%,rgba(90,42,94,0) 60%),
+  linear-gradient(135deg,#2c1630,#3b1a3a 50%,#6b2c3a);font-family:"Atkinson Hyperlegible",Verdana,sans-serif}
+.topbar{position:absolute;left:0;right:0;top:0;height:48px;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:22px;color:#fff;font-weight:700}
+.dock{position:absolute;left:0;top:48px;bottom:0;width:108px;background:rgba(20,20,24,.72);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:14px}
+.dock .di{width:76px;height:76px;border-radius:18px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+.dock .di.run::after{content:"";position:absolute;left:-14px;width:8px;height:8px;border-radius:50%;background:#e9672f}
+.dock .sp{flex:1}
+.hl{outline:5px solid #f6b93b;outline-offset:6px;border-radius:14px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{outline-color:rgba(246,185,59,.35)}}
+.win{position:absolute;left:250px;top:100px;width:1500px;height:780px;background:#fafafa;color:#222;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);overflow:hidden;display:none}
+.win.on{display:block}
+.wh{height:64px;background:#ebebeb;border-bottom:1px solid #d6d6d6;display:flex;align-items:center;padding:0 20px;gap:16px;font-size:24px;font-weight:700;position:relative}
+.wh .tt{position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.wh .wb{margin-left:auto;display:flex;gap:10px;z-index:1}
+.wh .wb span{width:34px;height:34px;border-radius:50%;background:#dcdcdc;display:flex;align-items:center;justify-content:center;font-size:18px}
+.wh .ic{z-index:1;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px}
+.wbody{display:flex;height:calc(100% - 64px)}
+.side{width:300px;background:#f0f0f0;border-right:1px solid #ddd;padding:16px 10px;font-size:24px}
+.side div{padding:12px 16px;border-radius:10px}
+.side .act{background:#dcdcdc;font-weight:700}
+.main{flex:1;padding:26px;position:relative;font-size:24px}
+.tiles{display:flex;flex-wrap:wrap;gap:22px 26px}
+.tile{width:150px;text-align:center;font-size:22px}
+.tile .f{font-size:96px;line-height:1.1;display:block}
+.tile.new{display:none}.tile.new.on{display:block}
+.menu{position:absolute;background:#fff;border:1px solid #ccc;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:8px;font-size:24px;display:none;min-width:300px;z-index:3}
+.menu.on{display:block}
+.menu div{padding:12px 18px;border-radius:8px}
+.dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.4);padding:30px;width:640px;display:none;z-index:4;font-size:26px}
+.dialog.on{display:block}
+.dialog h4{margin:0 0 18px;font-size:30px;text-align:center}
+.field{border:3px solid #e9672f;border-radius:10px;padding:12px 16px;min-height:60px;font-size:28px;white-space:pre}
+.btnrow{display:flex;justify-content:flex-end;gap:14px;margin-top:20px}
+.gbtn{padding:12px 26px;border-radius:10px;background:#e4e4e4;font-weight:700}
+.gbtn.pri{background:#e9672f;color:#fff}
+.searchbar{display:none;border:3px solid #e9672f;border-radius:10px;padding:8px 14px;font-size:26px;min-width:420px;z-index:1;background:#fff;min-height:50px;white-space:pre}
+.searchbar.on{display:block}
+.results{display:none}.results.on{display:block}
+.row{display:flex;gap:20px;align-items:center;padding:16px 20px;border-radius:12px;font-size:28px}
+.row small{color:#666;font-size:22px}
+.apps{position:absolute;inset:48px 0 0 108px;background:rgba(10,10,14,.82);display:none;flex-direction:column;align-items:center;padding-top:50px;color:#fff}
+.apps.on{display:flex}
+.apps .sf{width:640px;border-radius:30px;background:rgba(255,255,255,.14);padding:14px 26px;font-size:28px;min-height:62px;margin-bottom:60px;white-space:pre}
+.agrid{display:grid;grid-template-columns:repeat(6,190px);gap:40px 30px}
+.app{text-align:center;font-size:22px}
+.app .ai{width:110px;height:110px;margin:0 auto 12px;border-radius:26px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:62px}
+.app.dim{opacity:.18}
+.editor-area{flex:1;padding:36px 46px;font-size:38px;line-height:1.5;white-space:pre-wrap;color:#222;font-family:"Atkinson Hyperlegible",Verdana,sans-serif}
+.set-main h3{font-size:36px;margin:0 0 24px}
+.styles{display:flex;gap:30px}
+.styles div{width:280px;height:170px;border-radius:16px;border:4px solid #ddd;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-weight:700}
+.styles .a{background:linear-gradient(#fff,#eee);border-color:#e9672f}.styles .b{background:linear-gradient(#333,#222);color:#fff}
+.dots{display:flex;gap:18px;margin-top:30px}
+.dots i{width:46px;height:46px;border-radius:50%;display:block}
+.saveloc{margin-top:18px;border:1px solid #ddd;border-radius:10px}
+.saveloc div{padding:12px 16px;font-size:24px}
+.saveloc .sel{background:#fde3d6;font-weight:700}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Fundamentos do Linux: primeiros passos</h1>
+  <p class="lede">Videoaula para iniciantes, com narração em português do Brasil gerada pela voz do seu navegador. Toque em “Iniciar videoaula”. Para gravar em Full HD, use a tela cheia.</p>
+
+  <div class="frame" id="frame">
+    <div id="stage">
+      <div id="layer"></div>
+      <div class="sec" id="sec"></div>
+      <div class="legend" id="legend"></div>
+      <div class="keycast" id="keycast"></div>
+      <div id="cursor"><svg viewBox="0 0 24 24"><path d="M3 2l7.5 19 2.6-7.6L21 11z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+      <div class="caption" id="cap"></div>
+      <div class="start" id="start">
+        <button id="startBtn" type="button">▶ Iniciar videoaula</button>
+        <p>Duração aproximada: 16 a 19 minutos. Ative o som do dispositivo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar"><i id="prog"></i></div>
+  <div class="controls">
+    <button id="play" class="primary" type="button">▶ Reproduzir</button>
+    <button id="prev" type="button" aria-label="Cena anterior">⏮ Anterior</button>
+    <button id="next" type="button" aria-label="Próxima cena">Próxima ⏭</button>
+    <button id="capBtn" type="button" aria-pressed="true">Legendas: ligadas</button>
+    <select id="voice" aria-label="Voz da narração"></select>
+    <select id="rate" aria-label="Velocidade da narração">
+      <option value="0.9">Velocidade 0,9×</option>
+      <option value="1" selected>Velocidade 1×</option>
+      <option value="1.1">Velocidade 1,1×</option>
+    </select>
+    <button id="fs" type="button">⛶ Tela cheia</button>
+    <span class="status" id="status"></span>
+  </div>
+  <div class="chapters" id="chapters"></div>
+
+  <div class="notes">
+    <p><strong>Atalhos:</strong> espaço reproduz ou pausa; setas mudam de cena; F alterna a tela cheia; L liga ou desliga as legendas. Ao pausar, a cena recomeça do início quando você retomar.</p>
+    <p><strong>Para gerar um arquivo MP4 em Full HD:</strong> abra esta página num monitor 1920×1080, entre em tela cheia e grave com um programa como o OBS Studio, capturando o áudio do sistema.</p>
+    <p><strong>Sobre as demonstrações:</strong> as telas do Ubuntu 26.04.1 LTS e do terminal são reproduções animadas. As saídas dos comandos seguem o formato do Ubuntu em português; horários e mensagens podem variar levemente numa máquina real.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const frame=$("#frame"), stage=$("#stage"), layer=$("#layer"), cap=$("#cap"), cursorEl=$("#cursor"),
+      keycastEl=$("#keycast"), legendEl=$("#legend"), secEl=$("#sec");
+
+/* ---------- Escala do palco ---------- */
+let K=1;
+function fit(){
+  const w=frame.clientWidth, h=frame.clientHeight;
+  K=Math.min(w/1920,h/1080);
+  const ox=(w-1920*K)/2, oy=(h-1080*K)/2;
+  stage.style.transform=`translate(${ox}px,${oy}px) scale(${K})`;
+}
+new ResizeObserver(fit).observe(frame); fit();
+
+/* ---------- Utilidades ---------- */
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const prompt=cwd=>`<span class="pu">aluno@ubuntu</span>:<span class="pp">${esc(cwd)}</span>$ `;
+
+/* ---------- Interface gráfica simulada ---------- */
+const DOCK=[["web","🌐"],["files","📁"],["editor","📝"],["settings","⚙️"],["term","⌨️"]];
+function desktop(inner,run){
+  run=run||[];
+  return `<div class="desk">
+    <div class="topbar" data-id="topbar"><span>● ○</span><span data-id="clock">23 de out 10:12</span><span data-id="tray">📶 🔊 🔋</span></div>
+    <div class="dock" data-id="dock">${DOCK.map(d=>`<div class="di${run.includes(d[0])?" run":""}" data-id="dock-${d[0]}">${d[1]}</div>`).join("")}<div class="sp"></div><div class="di" data-id="dock-apps">▦</div></div>
+    ${inner}</div>`;
+}
+function win(id,title,body,opt){
+  opt=opt||{};
+  return `<div class="win${opt.on?" on":""}" data-id="${id}">
+    <div class="wh">${opt.left||""}<div class="tt" data-id="${id}-title">${title}</div><div class="wb"><span>—</span><span>▢</span><span data-id="${id}-close">✕</span></div></div>
+    <div class="wbody">${body}</div></div>`;
+}
+const APPS=[["files","📁","Arquivos"],["editor","📝","Editor de Texto"],["settings","⚙️","Configurações"],["term","⌨️","Terminal"],["web","🌐","Navegador"],["calc","🧮","Calculadora"],
+  ["cal","📅","Calendário"],["img","🖼️","Imagens"],["res","📊","Recursos"],["store","🛍️","Central de Apps"],["help","❓","Ajuda"],["clock","⏰","Relógios"]];
+function appsOverlay(){
+  return `<div class="apps" data-id="apps"><div class="sf" data-id="apps-search">🔍 </div>
+    <div class="agrid">${APPS.map(a=>`<div class="app" data-id="ap-${a[0]}"><div class="ai">${a[1]}</div>${a[2]}</div>`).join("")}</div></div>`;
+}
+const HOME_TILES=["Área de trabalho","Documentos","Downloads","Imagens","Modelos","Música","Público","snap","Vídeos"];
+function filesWin(opt){
+  opt=opt||{};
+  const tiles=HOME_TILES.map((t,i)=>{
+    let s=`<div class="tile" data-id="tile-${i}"><span class="f">📁</span>${t}</div>`;
+    if(i===0) s+=`<div class="tile new${opt.withFolder?" on":""}" data-id="tile-new"><span class="f">📁</span>aula-linux</div>`;
+    return s;
+  }).join("");
+  const body=`<div class="side"><div class="act">🏠 Pasta pessoal</div><div>📄 Documentos</div><div>⬇️ Downloads</div><div>🖼️ Imagens</div><div>🎵 Música</div><div>🎬 Vídeos</div><div>🗑️ Lixeira</div></div>
+    <div class="main" data-id="files-main">
+      <div class="tiles" data-id="tiles">${tiles}</div>
+      <div class="results" data-id="results"><div class="row" data-id="result-1"><span style="font-size:52px">📄</span><div>anotacoes.txt<br><small>~/aula-linux</small></div></div></div>
+      <div data-id="empty" style="position:absolute;left:900px;top:520px;width:20px;height:20px"></div>
+      <div class="menu" data-id="menu" style="left:900px;top:300px"><div data-id="m-new">Nova pasta…</div><div>Colar</div><div>Selecionar tudo</div><div>Abrir no terminal</div><div>Propriedades</div></div>
+      <div class="dialog" data-id="nf"><h4>Nova pasta</h4><div style="font-size:22px;color:#555;margin-bottom:8px">Nome da pasta</div><div class="field" data-id="nf-name"></div><div class="btnrow"><span class="gbtn">Cancelar</span><span class="gbtn pri" data-id="nf-ok">Criar</span></div></div>
+    </div>`;
+  return win("files","Pasta pessoal",body,{on:opt.on,left:`<span class="ic" data-id="files-search-btn">🔍</span><span class="searchbar" data-id="files-search"></span>`});
+}
+function settingsWin(on){
+  const body=`<div class="side"><div>📶 Rede</div><div>🔵 Bluetooth</div><div data-id="st-mon">🖥️ Monitores</div><div data-id="st-som">🔊 Som</div><div>🔋 Energia</div><div data-id="st-apa" class="act">🎨 Aparência</div><div>🔔 Notificações</div><div>🔒 Privacidade</div><div>ℹ️ Sistema</div></div>
+    <div class="main set-main"><h3>Aparência</h3><div style="margin-bottom:14px">Estilo</div><div class="styles"><div class="a">Claro</div><div class="b">Escuro</div></div>
+    <div style="margin-top:34px">Cor de destaque</div><div class="dots"><i style="background:#e9672f"></i><i style="background:#c7162b"></i><i style="background:#3584e4"></i><i style="background:#2ec27e"></i><i style="background:#9141ac"></i></div></div>`;
+  return win("settings","Configurações",body,{on});
+}
+function editorWin(folderPath,folderName){
+  const body=`<div class="editor-area" data-id="ed-text"></div>
+    <div class="dialog" data-id="sv" style="width:760px"><h4>Salvar como</h4><div style="font-size:22px;color:#555;margin-bottom:8px">Nome</div><div class="field" data-id="sv-name"></div>
+      <div class="saveloc"><div>🏠 Pasta pessoal</div><div data-id="sv-folder">📁 ${folderPath}</div></div>
+      <div class="btnrow"><span class="gbtn">Cancelar</span><span class="gbtn pri" data-id="sv-ok">Salvar</span></div></div>`;
+  return win("ed","Documento sem título",body,{});
+}
+
+/* ---------- Helpers de ação ---------- */
+const q=sel=>layer.querySelector(`[data-id="${sel}"]`);
+function posOf(id){
+  const el=q(id); if(!el) return null;
+  const r=el.getBoundingClientRect(), s=stage.getBoundingClientRect();
+  return {x:(r.left-s.left+r.width/2)/K, y:(r.top-s.top+r.height/2)/K};
+}
+function cur(id){const p=posOf(id); if(!p) return; cursorEl.style.opacity=1; cursorEl.style.transform=`translate(${p.x}px,${p.y}px)`;}
+function click(id){
+  const p=posOf(id); if(!p) return; cur(id);
+  if(ctxNow&&ctxNow.instant) return;
+  const r=document.createElement("div"); r.className="ripple"; r.style.left=p.x+"px"; r.style.top=p.y+"px";
+  stage.appendChild(r); setTimeout(()=>r.remove(),800);
+}
+const on=(id,v=true)=>{const e=q(id); if(e) e.classList.toggle("on",v);};
+const hl=(id,v=true)=>{const e=q(id); if(e) e.classList.toggle("hl",v);};
+const txt=(id,t)=>{const e=q(id); if(e) e.textContent=t;};
+function keycast(t){ if(!t){keycastEl.style.display="none";return;} keycastEl.textContent=t; keycastEl.style.display="block"; }
+function typeInto(ctx,t0,id,text,speed,prefix){
+  speed=speed||85; prefix=prefix||"";
+  for(let k=0;k<=text.length;k++) ctx.at(t0+k*speed,()=>txt(id,prefix+text.slice(0,k)));
+  return t0+text.length*speed;
+}
+
+/* ---------- Terminal ---------- */
+function termHtml(title){
+  return `<div class="term"><div class="term-h"><span data-id="term-title">${esc(title)}</span><span class="wb"><i></i><i></i><i></i></span></div><div class="term-b" data-id="term-b"></div></div>`;
+}
+function renderTerm(st){
+  const b=q("term-b"); if(!b) return;
+  b.innerHTML=st.lines.map(l=>`<div>${l||" "}</div>`).join("")+`<div>${prompt(st.cwd)}<span class="cmd" data-id="live"></span><span class="caret"></span></div>`;
+  const t=q("term-title"); if(t) t.textContent="aluno@ubuntu: "+st.cwd;
+  b.scrollTop=b.scrollHeight;
+}
+function applyStep(st,s){
+  if(s.clear){st.lines=[];}
+  else{
+    st.lines.push(prompt(st.cwd)+`<span class="cmd">${esc(s.cmd)}</span>`);
+    (s.out||[]).forEach(o=>st.lines.push(o));
+  }
+  if(s.cwd) st.cwd=s.cwd;
+}
+function termStateAt(i){
+  let st={lines:[],cwd:"~"};
+  for(let j=0;j<i;j++){
+    const sc=S[j]; if(!sc.term) continue;
+    if(sc.term.reset) st={lines:[],cwd:"~"};
+    sc.term.steps.forEach(s=>applyStep(st,s));
+  }
+  if(S[i].term&&S[i].term.reset) st={lines:[],cwd:"~"};
+  return st;
+}
+function termAct(ctx,sc,st){
+  let t=700;
+  sc.term.steps.forEach(s=>{
+    const c=s.cmd;
+    for(let k=1;k<=c.length;k++) ctx.at(t+k*90,()=>{txt("live",c.slice(0,k)); keycast(c.slice(0,k));});
+    t+=c.length*90+1000;
+    ctx.at(t,()=>{applyStep(st,s); renderTerm(st); keycast(c+"  ⏎"); if(s.after) s.after();});
+    t+=s.wait||2800;
+  });
+  ctx.at(t,()=>keycast(""));
+  return t;
+}
+const o=s=>esc(s);
+const E=s=>`<span class="err">${esc(s)}</span>`;
+
+/* ---------- Fluxogramas ----------
+   nodes: {id,x,y,w,h,t,cls,d}  (x,y = centro da caixa; r = raio, para círculos)
+   edges: {a,b,d,cls,both,elbow,loop,label,lx,ly}  (d = segundo em que a seta aparece) */
+function flow(o){
+  const GAP=12, HEAD=34, HALF=17;
+  const N={};
+  o.nodes.forEach(n=>{ if(n.r){n.w=n.h=n.r*2;} N[n.id]=n; });
+  const edgePoint=(n,tx,ty)=>{
+    const dx=tx-n.x, dy=ty-n.y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+    const t=n.r?n.r:Math.min(Math.abs(ux)>1e-6?(n.w/2)/Math.abs(ux):1e9, Math.abs(uy)>1e-6?(n.h/2)/Math.abs(uy):1e9);
+    return [n.x+ux*(t+GAP), n.y+uy*(t+GAP)];
+  };
+  const head=(p,q)=>{ /* ponta de seta em p, vinda de q */
+    const dx=p[0]-q[0], dy=p[1]-q[1], l=Math.hypot(dx,dy)||1, ux=dx/l, uy=dy/l, nx=-uy, ny=ux;
+    const bx=p[0]-ux*HEAD, by=p[1]-uy*HEAD;
+    return {base:[bx,by], d:`M${p[0]} ${p[1]} L${bx+nx*HALF} ${by+ny*HALF} L${bx-nx*HALF} ${by-ny*HALF} Z`};
+  };
+  let svg='', labels='';
+  o.edges.forEach(e=>{
+    const A=N[e.a], B=N[e.b];
+    let pts;
+    if(e.loop){ /* sai por baixo de A, passa por y=e.loop e sobe por baixo de B */
+      pts=[[A.x,A.y+A.h/2+GAP],[A.x,e.loop],[B.x,e.loop],[B.x,B.y+B.h/2+GAP]];
+    } else if(e.elbow){
+      const s=[A.x,A.y+A.h/2+GAP], t=[B.x,B.y-B.h/2-GAP], m=s[1]+(t[1]-s[1])*0.4;
+      pts=s[0]===t[0]?[s,t]:[s,[s[0],m],[t[0],m],t];
+    } else {
+      pts=[edgePoint(A,B.x,B.y), edgePoint(B,A.x,A.y)];
+    }
+    const heads=[];
+    const first=pts[0], last=pts[pts.length-1];
+    const endHead=head(last,pts[pts.length-2]);
+    heads.push(endHead.d); pts=pts.slice(0,-1).concat([endHead.base]);
+    if(e.both){ const startHead=head(first,pts[1]); heads.push(startHead.d); pts[0]=startHead.base; }
+    let len=0; for(let i=1;i<pts.length;i++) len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+    const dpath=pts.map((p,i)=>(i?'L':'M')+Math.round(p[0])+' '+Math.round(p[1])).join(' ');
+    svg+=`<g class="edge ${e.cls||''}" style="--d:${e.d||0}s;--len:${Math.ceil(len)}"><path class="ln" d="${dpath}"/>${heads.map(h=>`<path class="ah" d="${h}"/>`).join('')}</g>`;
+    if(e.label){
+      const mid=e.loop?[(A.x+B.x)/2,e.loop]:[(pts[0][0]+pts[pts.length-1][0])/2,(pts[0][1]+pts[pts.length-1][1])/2];
+      labels+=`<div class="fl" style="left:${e.lx!==undefined?e.lx:Math.round(mid[0])}px;top:${e.ly!==undefined?e.ly:Math.round(mid[1])}px;--d:${(e.d||0)+.5}s">${e.label}</div>`;
+    }
+  });
+  const nodes=o.nodes.map(n=>`<div class="fn ${n.cls||''}" style="left:${Math.round(n.x-n.w/2)}px;top:${Math.round(n.y-n.h/2)}px;width:${n.w}px;height:${n.h}px;--d:${n.d||0}s">${n.t}</div>`).join('');
+  return `<div class="fc" style="width:${o.w}px;height:${o.h}px"><svg viewBox="0 0 ${o.w} ${o.h}">${svg}</svg>${nodes}${labels}</div>`;
+}
+
+/* ---------- Cenas ---------- */
+const SEC=["1. Abertura","2. O que é Linux?","3. Interface gráfica","4. Arquivos e pastas","5. Terminal","6. Usuários e permissões","7. Prática e encerramento"];
+const S=[
+/* 1 */
+{s:0,say:"Olá! Seja bem-vindo à aula Fundamentos do Linux: primeiros passos.",
+ html:()=>`<div class="slide center"><p class="t-note rv">Videoaula para iniciantes, com Ubuntu 26.04.1 LTS</p><h1 class="t-hero rv" style="--d:.3s">Fundamentos do Linux</h1><p class="t-sub rv" style="--d:.7s">primeiros passos</p></div>`},
+{s:0,say:"Quero começar com uma pergunta: como o computador consegue executar programas, organizar arquivos e controlar seus equipamentos, como o teclado, o mouse e a impressora?",
+ html:()=>`<div class="slide center"><p class="t-q rv">Como o computador consegue <span class="chalk">executar programas</span>, <span class="chalk">organizar arquivos</span> e <span class="chalk">controlar seus equipamentos</span>?</p><p class="t-note rv" style="--d:5s;margin-top:40px;font-size:60px">⌨️ 🖱️ 🖨️</p></div>`},
+{s:0,say:"A resposta é o sistema operacional. Sistema operacional é o programa principal do computador. Ele funciona como um gerente: distribui a memória, organiza os arquivos, conversa com os equipamentos e permite que os outros programas funcionem. Windows, macOS e Linux são exemplos de sistemas operacionais.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O sistema operacional é o gerente do computador</h2>${flow({w:1600,h:450,nodes:[
+   {id:'pr',x:420,y:48,w:640,h:86,d:4,t:'Programas<small>navegador, editor, jogos</small>'},
+   {id:'os',x:420,y:225,w:640,h:104,cls:'hot',d:1.5,t:'Sistema operacional<small>o gerente</small>'},
+   {id:'hw',x:420,y:402,w:640,h:86,d:5.5,t:'Equipamentos<small>teclado, mouse, disco, tela</small>'},
+   {id:'t1',x:1230,y:60,w:560,h:80,cls:'blue sm',d:9.5,t:'Distribui a memória'},
+   {id:'t2',x:1230,y:175,w:560,h:80,cls:'blue sm',d:11.5,t:'Organiza os arquivos'},
+   {id:'t3',x:1230,y:290,w:560,h:80,cls:'blue sm',d:13.5,t:'Conversa com os equipamentos'},
+   {id:'t4',x:1230,y:405,w:560,h:80,cls:'blue sm',d:15.5,t:'Faz os programas funcionarem'}],
+  edges:[{a:'pr',b:'os',d:6,label:'pedem ajuda',lx:640,ly:136},{a:'os',b:'hw',d:7,label:'controla',lx:600,ly:314},
+   {a:'os',b:'t1',cls:'hot',d:9.9},{a:'os',b:'t2',cls:'hot',d:11.9},{a:'os',b:'t3',cls:'hot',d:13.9},{a:'os',b:'t4',cls:'hot',d:15.9}]})}
+   <p class="t-note rv" style="--d:18s;margin:28px 0 0">Exemplos: Windows, macOS e Linux</p></div>`},
+{s:0,say:"Nesta aula você vai entender o que é Linux, conhecer a interface do Ubuntu, aprender como os arquivos se organizam e executar seus primeiros comandos no terminal. No final tem um desafio prático. Não precisa de experiência nenhuma: vamos juntos, passo a passo.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O que você vai aprender</h2><div class="cards">
+   <div class="card lightup" style="--d:1.6s"><span class="ico">🧩</span>O que é Linux</div>
+   <div class="card lightup" style="--d:3.2s"><span class="ico">🖥️</span>A interface</div>
+   <div class="card lightup" style="--d:5s"><span class="ico">🗂️</span>Arquivos e pastas</div>
+   <div class="card lightup" style="--d:7s"><span class="ico">⌨️</span>O terminal</div></div></div>`},
+/* 2 */
+{s:1,say:"Quando falamos “Linux”, estamos falando, na verdade, de uma peça chamada kernel. Kernel quer dizer núcleo: é a parte mais interna do sistema, que conversa diretamente com o hardware, ou seja, com as peças físicas do computador. O kernel Linux foi criado em 1991 por Linus Torvalds.",
+ html:()=>`<div class="slide">${flow({w:1600,h:620,nodes:[
+   {id:'pr',x:800,y:55,w:560,h:100,d:4.5,t:'Programas<small>navegador, editor, jogos</small>'},
+   {id:'k',x:800,y:300,r:125,cls:'hot circle',d:.5,t:'Kernel<small>o núcleo</small>'},
+   {id:'cpu',x:290,y:560,w:420,h:100,d:9,t:'🧠 Processador'},
+   {id:'mem',x:800,y:560,w:420,h:100,d:10,t:'💾 Memória'},
+   {id:'disk',x:1310,y:560,w:420,h:100,d:11,t:'🗄️ Disco'},
+   {id:'y',x:1390,y:300,w:360,h:130,cls:'ghost',d:14,t:'1991<small>criado por Linus Torvalds</small>'}],
+  edges:[{a:'pr',b:'k',d:5,label:'pedem',lx:910,ly:140},
+   {a:'k',b:'cpu',both:true,cls:'hot',d:9.4},{a:'k',b:'mem',both:true,cls:'hot',d:10.4},{a:'k',b:'disk',both:true,cls:'hot',d:11.4}]})}</div>`},
+{s:1,say:"Só o núcleo, porém, não basta para usar o computador no dia a dia. Por isso existem as distribuições: pacotes completos que juntam o kernel Linux com outros programas, como área de trabalho, navegador e editor de texto. Exemplos de distribuições são o Ubuntu, o Debian e o Fedora. Todas usam o mesmo núcleo, mas cada uma tem seu estilo.",
+ html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center">Distribuição = kernel Linux + programas</h2>${flow({w:1600,h:470,nodes:[
+   {id:'k',x:330,y:105,w:460,h:110,cls:'hot',d:.5,t:'Kernel Linux<small>o núcleo</small>'},
+   {id:'p',x:330,y:335,w:460,h:120,cls:'blue',d:6.5,t:'Programas<small>desktop, navegador, editor</small>'},
+   {id:'d',x:860,y:220,w:380,h:140,cls:'ghost',d:8.5,t:'Distribuição<small>pacote completo</small>'},
+   {id:'u',x:1400,y:70,w:380,h:110,d:13,t:'Ubuntu<small>kernel + programas</small>'},
+   {id:'de',x:1400,y:220,w:380,h:110,d:14,t:'Debian<small>kernel + programas</small>'},
+   {id:'f',x:1400,y:370,w:380,h:110,d:15,t:'Fedora<small>kernel + programas</small>'}],
+  edges:[{a:'k',b:'d',cls:'hot',d:8.9},{a:'p',b:'d',cls:'hot',d:9.1},
+   {a:'d',b:'u',d:13.4},{a:'d',b:'de',d:14.4},{a:'d',b:'f',d:15.4}]})}</div>`},
+{s:1,say:"O Linux é código aberto. Pense numa receita de bolo: num programa fechado, você só recebe o bolo pronto. No código aberto, a receita vem junto, e qualquer pessoa pode ler, estudar, adaptar e compartilhar a receita. Código-fonte é justamente essa “receita”: as instruções que formam o programa.",
+ html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center">Código aberto: a receita vem junto</h2><div class="two">
+   <div class="panel rv" style="--d:2.5s"><span class="big">📦🔒</span><h3>Programa fechado</h3>Você recebe só o bolo pronto.</div>
+   <div class="panel rv" style="--d:6s;border:4px solid #f6b93b"><span class="big">🎂📜</span><h3>Código aberto</h3><ul><li>ler</li><li>estudar</li><li>adaptar</li><li>compartilhar</li></ul></div></div>
+   <p class="t-note rv" style="--d:13s;text-align:center;margin-top:30px">Código-fonte: as instruções que formam o programa</p></div>`},
+{s:1,say:"O Linux está em computadores pessoais, mas também em boa parte dos servidores, que são computadores que ficam ligados o tempo todo oferecendo serviços como sites e aplicativos. Está ainda em celulares Android e em muitos aparelhos do dia a dia. Nesta aula, vamos usar o Ubuntu 26.04.1 LTS. LTS significa suporte de longo prazo: a versão recebe atualizações por vários anos.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">Onde o Linux está</h2><div class="cards" style="grid-template-columns:repeat(3,1fr)">
+   <div class="card lightup" style="--d:.8s"><span class="ico">💻</span>Computadores pessoais</div>
+   <div class="card lightup" style="--d:3s"><span class="ico">🗄️</span>Servidores</div>
+   <div class="card lightup" style="--d:10s"><span class="ico">📱</span>Celulares Android</div></div>
+   <p class="rv" style="--d:15s;margin-top:50px;font-size:48px;font-weight:700;background:#f6b93b;color:#1b2433;padding:16px 40px;border-radius:999px">Nesta aula: Ubuntu 26.04.1 LTS (suporte de longo prazo)</p></div>`},
+/* 3 */
+{s:2,gui:1,say:"Esta é a área de trabalho do Ubuntu. Interface gráfica é o jeito de usar o computador com janelas, ícones e o mouse. À esquerda fica a dock, uma barra com os programas mais usados. No alto, a barra superior mostra data, hora e o menu do sistema.",
+ legend:"<b>Área de trabalho</b> do Ubuntu 26.04.1 LTS",
+ html:()=>desktop(""),
+ act:ctx=>{ctx.at(1200,()=>cur("dock-web"));ctx.at(8500,()=>{hl("dock");cur("dock-files");});ctx.at(10500,()=>cur("dock-editor"));ctx.at(12000,()=>cur("dock-settings"));
+   ctx.at(14500,()=>{hl("dock",false);hl("topbar");cur("clock");});ctx.at(17500,()=>cur("tray"));ctx.at(19500,()=>hl("topbar",false));return 20000;}},
+{s:2,gui:1,say:"Para ver todos os programas, clique no botão de aplicativos, no final da dock. Você também pode pressionar a tecla Super, aquela com o símbolo do Windows, e digitar o nome do programa.",
+ legend:"Menu de <b>aplicativos</b>",
+ html:()=>desktop(appsOverlay()),
+ act:ctx=>{ctx.at(1000,()=>cur("dock-apps"));ctx.at(3500,()=>{click("dock-apps");on("apps");});ctx.at(5000,()=>cur("ap-files"));ctx.at(6500,()=>cur("ap-term"));
+   ctx.at(8500,()=>{on("apps",false);keycast("Super");cursorEl.style.opacity=0;});ctx.at(9800,()=>{on("apps");keycast("");});
+   let t=typeInto(ctx,10300,"apps-search","conf",220,"🔍 ");
+   ctx.at(t+200,()=>{layer.querySelectorAll(".app").forEach(a=>a.classList.toggle("dim",a.dataset.id!=="ap-settings"));hl("ap-settings");});
+   return t+2500;}},
+{s:2,gui:1,say:"Aqui estão as Configurações. É onde ajustamos tela, som, rede, aparência e muito mais. Hoje vamos só olhar, sem mudar nada.",
+ legend:"<b>Configurações</b>",
+ html:()=>desktop(settingsWin(true),["settings"]),
+ act:ctx=>{ctx.at(800,()=>cur("st-apa"));ctx.at(3500,()=>cur("st-mon"));ctx.at(5000,()=>cur("st-som"));ctx.at(8000,()=>click("settings-close"));ctx.at(8700,()=>on("settings",false));return 9500;}},
+{s:2,gui:1,say:"Agora o gerenciador de arquivos, que no Ubuntu se chama “Arquivos”. Ele mostra suas pastas: Documentos, Imagens, Downloads… Vamos criar uma pasta para a nossa aula. Clique com o botão direito numa área vazia, escolha “Nova pasta” e digite aula-linux, tudo em minúsculas e com hífen.",
+ legend:"<b>Arquivos</b>: criar uma pasta",
+ html:()=>desktop(filesWin({}),["files"]),
+ act:ctx=>{ctx.at(800,()=>cur("dock-files"));ctx.at(2000,()=>{click("dock-files");on("files");});ctx.at(5000,()=>cur("tile-1"));ctx.at(6200,()=>cur("tile-3"));ctx.at(7400,()=>cur("tile-2"));
+   ctx.at(11500,()=>cur("empty"));ctx.at(13000,()=>{click("empty");on("menu");});ctx.at(14800,()=>cur("m-new"));ctx.at(16000,()=>{click("m-new");on("menu",false);on("nf");});
+   let t=typeInto(ctx,17200,"nf-name","aula-linux",160);
+   ctx.at(t+800,()=>click("nf-ok"));ctx.at(t+1500,()=>{on("nf",false);on("tile-new");hl("tile-new");});return t+4500;}},
+{s:2,gui:1,say:"Para mostrar como abrir um programa, vamos abrir o Editor de Texto. Vou escrever duas linhas e salvar o arquivo dentro da pasta aula-linux com o nome anotacoes.txt, sem acento. O “.txt” é a extensão: uma terminação que indica que é um arquivo de texto.",
+ legend:"<b>Editor de Texto</b>: criar anotacoes.txt",
+ html:()=>desktop(appsOverlay()+editorWin("aula-linux"),["files","editor"]),
+ act:ctx=>editorAct(ctx,"Minha primeira aula de Linux\nHoje aprendi a usar o terminal.","anotacoes.txt","anotacoes.txt — ~/aula-linux")},
+{s:2,gui:1,say:"E se você esquecer onde salvou um arquivo? No gerenciador, clique na lupa e digite parte do nome. Pronto: aí está o anotacoes.txt.",
+ legend:"<b>Localizar</b> um arquivo",
+ html:()=>desktop(filesWin({on:true,withFolder:true}),["files"]),
+ act:ctx=>{ctx.at(800,()=>cur("files-search-btn"));ctx.at(2200,()=>{click("files-search-btn");on("files-search");});
+   let t=typeInto(ctx,3000,"files-search","anotacoes",170);
+   ctx.at(t+300,()=>{on("tiles",false);q("tiles").style.display="none";on("results");hl("result-1");cur("result-1");});return t+4000;}},
+/* 4 */
+{s:3,say:"No Linux, as pastas também são chamadas de diretórios. Elas formam uma árvore de cabeça para baixo. Lá no topo fica o diretório raiz, representado por uma barra. Tudo no sistema começa ali, inclusive pastas como /home, onde moram as pastas dos usuários.",
+ html:()=>`<div class="slide">${flow({w:1600,h:690,nodes:[
+   {id:'r',x:800,y:70,w:230,h:110,cls:'hot mono',d:5,t:'/<small>raiz</small>'},
+   {id:'home',x:400,y:290,w:360,h:110,cls:'blue mono',d:12,t:'home<small>pastas dos usuários</small>'},
+   {id:'etc',x:800,y:290,w:240,h:100,cls:'mono',d:10,t:'etc'},
+   {id:'usr',x:1200,y:290,w:240,h:100,cls:'mono',d:10.5,t:'usr'},
+   {id:'al',x:400,y:470,w:300,h:100,cls:'mono',d:14,t:'aluno'},
+   {id:'au',x:400,y:630,w:360,h:100,cls:'mono',d:15,t:'aula-linux'},
+   {id:'tag',x:1190,y:560,w:420,h:84,cls:'dashed sm',d:1,t:'pasta = diretório'}],
+  edges:[{a:'r',b:'home',elbow:true,d:12.4},{a:'r',b:'etc',elbow:true,d:10.4},{a:'r',b:'usr',elbow:true,d:10.9},
+   {a:'home',b:'al',elbow:true,d:14.4},{a:'al',b:'au',elbow:true,d:15.4}]})}</div>`},
+{s:3,say:"Cada usuário tem sua pasta pessoal. A minha fica em /home/aluno. Esse endereço completo se chama caminho: ele mostra o percurso desde a raiz. Como a pasta pessoal é muito usada, ela tem um atalho: o símbolo til. Então ~/aula-linux significa “a pasta aula-linux dentro da minha pasta pessoal”.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">Caminho e o atalho ~</h2>
+   <div class="path rv" style="--d:2s"><span class="h">/home/aluno</span>/aula-linux</div>
+   <div class="eq rv" style="--d:10s">é o mesmo que</div>
+   <div class="path rv" style="--d:11s"><span class="t">~</span>/aula-linux</div>
+   <p class="t-note rv" style="--d:11.5s;margin-top:30px">~ (til) = a sua pasta pessoal</p></div>`},
+{s:3,say:"Atenção a um detalhe importante: no Linux, letras maiúsculas e minúsculas fazem diferença nos nomes. Notas.txt e notas.txt são dois arquivos diferentes. Por isso, uma boa prática é usar nomes em minúsculas, sem espaços e sem acentos, como fizemos com aula-linux e anotacoes.txt.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">Maiúsculas e minúsculas fazem diferença</h2>
+   <div class="rv" style="--d:5s;display:flex;gap:50px;align-items:center"><span class="path">Notas.txt</span><span style="font-size:120px;color:#ff8a65;font-weight:700">≠</span><span class="path">notas.txt</span></div>
+   <div class="panel rv" style="--d:11s;margin-top:60px;border:4px solid #f6b93b;text-align:left">Boa prática: minúsculas, sem espaços e sem acentos.<br><span class="mono chalk">aula-linux</span> e <span class="mono chalk">anotacoes.txt</span></div></div>`},
+/* 5 */
+{s:4,say:"Agora, o terminal. Terminal é um programa onde você dá ordens ao computador escrevendo comandos, que são palavras com instruções. Parece assustador, mas é como conversar com o sistema por mensagens. Para abrir, pressione Ctrl + Alt + T. Veja o texto aluno@ubuntu:~$. Isso é o prompt: ele mostra o usuário, o nome do computador e a pasta atual, o til. O cifrão indica que ele está esperando um comando.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O terminal</h2>
+   <p class="rv" style="--d:9s;font-size:46px;margin:0 0 50px">Para abrir: <span class="keycap">Ctrl</span>+<span class="keycap">Alt</span>+<span class="keycap">T</span></p>
+   <div class="prompt-big rv" style="--d:13s">
+     <span><b class="pu">aluno</b><em class="rv" style="--d:19s">usuário</em></span><span class="pu">@</span>
+     <span><b class="pu">ubuntu</b><em class="rv" style="--d:20s">computador</em></span><span>:</span>
+     <span><b class="pp">~</b><em class="rv" style="--d:22s">pasta atual</em></span>
+     <span><b>$</b><em class="rv" style="--d:24s">aguardando</em></span></div></div>`},
+{s:4,say:"Antes de digitar comandos, vale entender o que acontece quando você aperta Enter. Você digita o comando no terminal. O terminal entrega o texto ao shell, o interpretador de comandos; no Ubuntu, ele se chama bash. O shell entende o que você pediu e pede o serviço ao kernel. O kernel conversa com o hardware, por exemplo o disco, e o resultado volta pelo mesmo caminho, até a tela.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O caminho de um comando</h2>${flow({w:1600,h:420,nodes:[
+   {id:'u',x:120,y:130,w:210,h:150,cls:'blue',d:6.5,t:'⌨️ Você<small>digita</small>'},
+   {id:'t',x:465,y:130,w:210,h:150,d:9,t:'Terminal<small>a janela</small>'},
+   {id:'s',x:810,y:130,w:210,h:150,cls:'hot',d:12,t:'Shell<small>bash</small>'},
+   {id:'k',x:1155,y:130,w:210,h:150,d:18.5,t:'Kernel<small>o núcleo</small>'},
+   {id:'h',x:1500,y:130,w:210,h:150,d:22.5,t:'Hardware<small>disco</small>'}],
+  edges:[{a:'u',b:'t',cls:'hot',d:9.5,label:'texto',ly:84},{a:'t',b:'s',cls:'hot',d:12.5,label:'comando',ly:84},
+   {a:'s',b:'k',cls:'hot',d:19,label:'pede',ly:84},{a:'k',b:'h',cls:'hot',d:23,label:'acessa',ly:84},
+   {a:'h',b:'u',loop:350,cls:'dash',d:27,label:'o resultado volta pelo mesmo caminho, até a tela'}]})}</div>`},
+{s:4,legend:"<b>pwd</b> = mostrar o diretório atual",
+ say:"Primeiro comando: pwd, que mostra em qual diretório você está agora. Digite pwd e pressione Enter.",
+ term:{reset:true,steps:[{cmd:"pwd",out:[o("/home/aluno")],wait:4000}]}},
+{s:4,legend:"<b>ls</b> = listar arquivos e pastas",
+ say:"Estamos na pasta pessoal. Agora, ls, que lista os arquivos e pastas do lugar onde você está. Repare que a aula-linux, criada pela interface gráfica, aparece aqui. Os nomes com espaço aparecem entre aspas.",
+ term:{steps:[{cmd:"ls",out:[o("'Área de trabalho'   Documentos   Imagens   Música    snap"),o(" ")+`<span style="outline:4px solid #f6b93b;border-radius:6px">aula-linux</span>`+o("          Downloads    Modelos   Público   Vídeos")],wait:6000}]}},
+{s:4,legend:"<b>cd</b> = mudar de diretório",
+ say:"Para entrar na pasta, usamos cd, de “change directory”, mudar de diretório. Digite cd, espaço, aula-linux. Veja que o prompt mudou para ~/aula-linux. Vamos confirmar com pwd e listar com ls: lá está o nosso anotacoes.txt.",
+ term:{steps:[{cmd:"cd aula-linux",cwd:"~/aula-linux",wait:3500},{cmd:"pwd",out:[o("/home/aluno/aula-linux")],wait:3000},{cmd:"ls",out:[o("anotacoes.txt")],wait:3500}]}},
+{s:4,legend:"<b>mkdir</b> = criar uma pasta",
+ say:"Agora, o mkdir, de “make directory”, que cria uma pasta. Vamos criar uma pasta chamada copias, sem acento. Repare: o terminal não respondeu nada. No Linux, quando um comando dá certo, muitas vezes ele simplesmente fica em silêncio. O ls confirma que a pasta foi criada.",
+ term:{steps:[{cmd:"mkdir copias",wait:6000},{cmd:"ls",out:[o("anotacoes.txt   copias")],wait:3500}]}},
+{s:4,legend:"<b>touch</b> = criar um arquivo vazio",
+ say:"O touch cria um arquivo vazio quando ele ainda não existe. Se o arquivo já existir, ele não apaga nada: apenas atualiza a data de modificação. Vamos criar lista.txt.",
+ term:{steps:[{cmd:"touch lista.txt",wait:2500},{cmd:"ls",out:[o("anotacoes.txt   copias   lista.txt")],wait:3500}]}},
+{s:4,legend:"<b>cat</b> = exibir o conteúdo de um arquivo",
+ say:"Para ver o conteúdo de um arquivo de texto, usamos cat. Vamos ler o arquivo que escrevemos no editor. E aqui vai uma prova de que maiúsculas importam: se eu escrever Anotacoes com A maiúsculo, o sistema diz que o arquivo não existe.",
+ term:{steps:[{cmd:"cat anotacoes.txt",out:[o("Minha primeira aula de Linux"),o("Hoje aprendi a usar o terminal.")],wait:6000},{cmd:"cat Anotacoes.txt",out:[E("cat: Anotacoes.txt: Arquivo ou diretório inexistente")],wait:5000}]}},
+{s:4,legend:"<b>cp</b> origem destino = copiar",
+ say:"Agora vamos copiar, com cp. A ordem é: cp, o arquivo de origem e, depois, o destino. Vou copiar anotacoes.txt para dentro da pasta copias. A barra no final indica que copias é uma pasta. Para conferir, uso ls seguido do nome da pasta.",
+ term:{steps:[{cmd:"cp anotacoes.txt copias/",wait:3500},{cmd:"ls copias",out:[o("anotacoes.txt")],wait:4000}]}},
+{s:4,legend:"<b>mv</b> = mover ou renomear",
+ say:"O mv tem duas funções: renomear e mover. Primeiro, renomear: lista.txt passa a se chamar tarefas.txt. Depois, mover: tarefas.txt vai para dentro da pasta copias. Diferente do cp, o mv não deixa o original para trás.",
+ term:{steps:[{cmd:"mv lista.txt tarefas.txt",wait:2000},{cmd:"ls",out:[o("anotacoes.txt   copias   tarefas.txt")],wait:3000},{cmd:"mv tarefas.txt copias/",wait:2000},{cmd:"ls",out:[o("anotacoes.txt   copias")],wait:2500},{cmd:"ls copias",out:[o("anotacoes.txt   tarefas.txt")],wait:3500}]}},
+{s:4,legend:"<b>..</b> = pasta de cima&emsp;<b>~</b> = pasta pessoal",
+ say:"Para voltar uma pasta, use cd, espaço, dois pontos. Os dois pontos significam “a pasta de cima”. E cd seguido de til leva você de volta à pasta pessoal; aqui, vou direto para ~/aula-linux.",
+ term:{steps:[{cmd:"cd ..",cwd:"~",wait:2000},{cmd:"pwd",out:[o("/home/aluno")],wait:2500},{cmd:"cd ~/aula-linux",cwd:"~/aula-linux",wait:3000}]}},
+{s:4,legend:"<b>clear</b> = limpar a tela",
+ say:"Por fim, clear limpa a tela. Ele não apaga arquivos nem o histórico: só deixa a janela organizada.",
+ term:{steps:[{cmd:"clear",clear:true,wait:3500}]}},
+/* 6 */
+{s:5,say:"O Linux é um sistema multiusuário: várias pessoas podem ter contas no mesmo computador. O usuário comum, como o nosso aluno, mexe nos próprios arquivos. O administrador, também chamado de superusuário ou root, pode alterar o sistema inteiro. Essa separação protege o computador contra erros e ameaças.",
+ html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center">Quem pode fazer o quê</h2><div class="two">
+   <div class="panel rv" style="--d:5s"><span class="big">🙋🔑</span><h3>Usuário comum</h3>Cuida dos próprios arquivos. Tem a chave da própria casa.</div>
+   <div class="panel rv" style="--d:9s;border:4px solid #f6b93b"><span class="big">🛡️🗝️</span><h3>Administrador (root)</h3>Pode alterar o sistema inteiro. Tem a chave do prédio.</div></div></div>`},
+{s:5,legend:"<b>r</b> leitura&emsp;<b>w</b> escrita&emsp;<b>x</b> execução",
+ say:"Cada arquivo tem permissões: r, de leitura, permite ver; w, de escrita, permite alterar; e x, de execução, permite rodar como programa. Veja com ls -l, que lista com detalhes. O primeiro caractere indica o tipo: traço para arquivo, d para diretório. Depois vêm três grupos: o dono, o grupo e os outros usuários. Um traço significa “sem essa permissão”.",
+ extra:`<div class="permbox" data-id="permbox"><div class="pm"><span>-<em>tipo</em></span><span class="u">rw-<em>dono</em></span><span class="g">rw-<em>grupo</em></span><span class="o">r--<em>outros</em></span></div><div>r = ler<br>w = alterar<br>x = executar<br>- = sem permissão</div></div>`,
+ term:{steps:[{cmd:"ls -l",out:[o("total 8"),
+   `<span class="perm-t">-</span><span class="perm-u">rw-</span><span class="perm-g">rw-</span><span class="perm-o">r--</span>${o(" 1 aluno aluno   61 out 23 10:13 anotacoes.txt")}`,
+   `<span class="perm-t">d</span><span class="perm-u">rwx</span><span class="perm-g">rwx</span><span class="perm-o">r-x</span>${o(" 2 aluno aluno 4096 out 23 10:18 copias")}`],
+   wait:16000,after:()=>on("permbox")}]}},
+{s:5,say:"E o sudo? Ele permite que um usuário autorizado execute um comando com poderes de administrador, pedindo a sua senha. É como pedir a chave do prédio emprestada para uma tarefa específica. Use com cuidado e só quando souber o que o comando faz. Hoje não vamos precisar dele.",
+ html:()=>`<div class="slide center"><p class="path rv" style="font-size:110px">sudo</p><h2 class="t-h rv" style="--d:1.5s;margin-top:40px">executar um comando como administrador</h2>
+   <div class="panel rv" style="--d:11s;border:4px solid #ff8a65;text-align:left">⚠️ Pede a sua senha. Use com cuidado.<br>Nesta aula, não vamos usar.</div></div>`},
+/* 7 */
+{s:6,say:"Hora do desafio! Dentro da pasta aula-linux: um, crie uma pasta chamada desafio; dois, salve nela, pelo Editor de Texto, um arquivo meu-texto.txt com uma frase sua; três, mostre o conteúdo no terminal; quatro, faça uma cópia chamada meu-texto-copia.txt.",
+ html:()=>challenge(false)},
+{s:6,say:"Pause o vídeo e tente agora. Se preferir, use esta contagem de 30 segundos para planejar os comandos.",
+ html:()=>challenge(true),
+ act:ctx=>{for(let k=0;k<=30;k++) ctx.at(k*1000,()=>txt("timer",String(30-k)));return 31000;}},
+{s:6,legend:"Solução, parte 1: criar a pasta",
+ say:"Vamos à solução. Primeiro, mkdir com o caminho completo cria a pasta desafio.",
+ term:{steps:[{cmd:"mkdir ~/aula-linux/desafio",wait:3000}]}},
+{s:6,gui:1,legend:"Solução, parte 2: salvar o texto",
+ say:"No Editor de Texto, escrevo uma frase e salvo como meu-texto.txt dentro da pasta desafio.",
+ html:()=>desktop(appsOverlay()+editorWin("aula-linux ▸ desafio"),["editor","term"]),
+ act:ctx=>editorAct(ctx,"Estou aprendendo Linux!","meu-texto.txt","meu-texto.txt — ~/aula-linux/desafio")},
+{s:6,legend:"Solução, parte 3: ler e copiar",
+ say:"No terminal, entro na pasta com cd, leio o conteúdo com cat e copio com cp, dando um novo nome à cópia. O ls confirma: os dois arquivos estão lá.",
+ term:{steps:[{cmd:"cd ~/aula-linux/desafio",cwd:"~/aula-linux/desafio",wait:2000},{cmd:"cat meu-texto.txt",out:[o("Estou aprendendo Linux!")],wait:3000},
+   {cmd:"cp meu-texto.txt meu-texto-copia.txt",wait:2000},{cmd:"ls",out:[o("meu-texto-copia.txt   meu-texto.txt")],wait:5000}]}},
+{s:6,say:"Recapitulando: o sistema operacional gerencia o computador; o Linux é o núcleo, e as distribuições, como o Ubuntu, completam o sistema. Os arquivos se organizam a partir da raiz, e o til é a sua pasta pessoal. Você usou pwd, ls, cd, mkdir, touch, cp, mv, cat e clear, e entendeu as permissões e o papel do sudo.",
+ html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center;margin-bottom:28px;font-size:62px">Seus nove primeiros comandos</h2><div class="grid9">
+   ${[["pwd","onde estou"],["ls","listar"],["cd","mudar de pasta"],["mkdir","criar pasta"],["touch","criar arquivo vazio"],["cp","copiar"],["mv","mover ou renomear"],["cat","ver o conteúdo"],["clear","limpar a tela"]]
+     .map((c,i)=>`<div class="cmdcard rv" style="--d:${12+i*.9}s"><b>${c[0]}</b>${c[1]}</div>`).join("")}</div></div>`},
+{s:6,say:"Continue praticando dentro da sua pasta de estudos. Parabéns pelos primeiros passos, e até a próxima aula!",
+ html:()=>`<div class="slide center"><h1 class="t-hero rv" style="font-size:110px">Parabéns pelos primeiros passos!</h1><p class="t-sub rv" style="--d:1s">Continue praticando na pasta aula-linux.</p><p class="t-note rv" style="--d:3s;margin-top:60px">Até a próxima aula.</p></div>`}
+];
+
+function challenge(withTimer){
+  return `<div class="slide"><h2 class="t-h rv" style="margin-bottom:30px">Desafio</h2><div style="display:flex;gap:60px;align-items:center">
+   <ol class="steps"><li>Crie a pasta <code>desafio</code> dentro de <code>aula-linux</code></li><li>Salve nela <code>meu-texto.txt</code> com uma frase sua</li><li>Mostre o conteúdo no terminal</li><li>Faça a cópia <code>meu-texto-copia.txt</code></li></ol>
+   ${withTimer?`<div style="text-align:center"><div class="timer" data-id="timer">30</div><div style="font-size:36px">Pause e tente</div></div>`:""}</div></div>`;
+}
+function editorAct(ctx,text,name,title){
+  ctx.at(600,()=>{keycast("Super");on("apps");});
+  let t=typeInto(ctx,1500,"apps-search","editor",160,"🔍 ");
+  ctx.at(t+200,()=>{layer.querySelectorAll(".app").forEach(a=>a.classList.toggle("dim",a.dataset.id!=="ap-editor"));keycast("");cur("ap-editor");});
+  ctx.at(t+1600,()=>click("ap-editor"));
+  ctx.at(t+2200,()=>{on("apps",false);on("ed");cur("ed-text");});
+  t=typeInto(ctx,t+3000,"ed-text",text,75);
+  ctx.at(t+1000,()=>keycast("Ctrl + S"));
+  ctx.at(t+2000,()=>{keycast("");on("sv");});
+  ctx.at(t+2800,()=>{click("sv-folder");const f=q("sv-folder");if(f)f.classList.add("sel");});
+  t=typeInto(ctx,t+3800,"sv-name",name,120);
+  ctx.at(t+800,()=>click("sv-ok"));
+  ctx.at(t+1400,()=>{on("sv",false);txt("ed-title",title);hl("ed-title");});
+  return t+4500;
+}
+
+/* ---------- Narração ---------- */
+const W=w=>new RegExp(`(?<![\\wÀ-ÿ])${w}(?![\\wÀ-ÿ])`,"g");
+const PRON=[
+ [/aluno@ubuntu:~\$/g,"aluno arroba ubuntu, dois pontos, til, cifrão"],
+ [/~\/aula-linux\/desafio/g,"til, barra, aula linux, barra, desafio"],
+ [/~\/aula-linux/g,"til, barra, aula linux"],
+ [/\/home\/aluno/g,"barra rôme barra aluno"],[/\/home/g,"barra rôme"],
+ [/26\.04\.1/g,"vinte e seis ponto zero quatro ponto um"],
+ [/Ctrl \+ Alt \+ T/g,"Control, Alt e T"],
+ [/ls -l/g,"éle ésse traço éle"],
+ [/Notas\.txt/g,"Notas ponto tê xis tê, com éne maiúsculo,"],[/notas\.txt/g,"notas ponto tê xis tê, com éne minúsculo,"],
+ [/meu-texto-copia\.txt/g,"meu texto cópia ponto tê xis tê"],[/meu-texto\.txt/g,"meu texto ponto tê xis tê"],
+ [/anotacoes\.txt/g,"anotações ponto tê xis tê"],[/lista\.txt/g,"lista ponto tê xis tê"],[/tarefas\.txt/g,"tarefas ponto tê xis tê"],
+ [/“\.txt”/g,"ponto tê xis tê"],[/aula-linux/g,"aula linux"],[/Anotacoes/g,"Anotações"],
+ [/r, de leitura/g,"érre, de leitura"],[/w, de escrita/g,"dáblio, de escrita"],[/x, de execução/g,"xis, de execução"],[/d para diretório/g,"dê para diretório"],
+ [W("shell"),"xél"],[W("bash"),"béche"],[W("pwd"),"pê dáblio dê"],[W("ls"),"éle ésse"],[W("cd"),"cê dê"],[W("mkdir"),"em cá dir"],[W("touch"),"tâtch"],[W("cat"),"két"],
+ [W("cp"),"cê pê"],[W("mv"),"ême vê"],[W("clear"),"clíer"],[W("sudo"),"súdo"],[W("copias"),"cópias"],[W("root"),"rút"],
+ [W("dock"),"dóc"],[W("prompt"),"prômpt"],[W("LTS"),"éle tê ésse"],[W("macOS"),"mac ó ésse"],[/~/g,"til"]
+];
+const forSpeech=s=>PRON.reduce((a,[r,v])=>a.replace(r,v),s);
+const splitSent=s=>s.split(/(?<=[.!?…:;])\s+(?=[A-ZÀ-Úa-zà-ú“0-9~])/).filter(Boolean);
+
+const hasTTS="speechSynthesis" in window;
+let voices=[], voice=null, rate=1;
+const voiceSel=$("#voice");
+function loadVoices(){
+  if(!hasTTS){voiceSel.innerHTML="<option>Narração indisponível neste navegador</option>";voiceSel.disabled=true;return;}
+  voices=speechSynthesis.getVoices().filter(v=>/^pt/i.test(v.lang));
+  voices.sort((a,b)=>score(b)-score(a));
+  if(!voices.length){voiceSel.innerHTML="<option>Sem voz em português: só legendas</option>";voice=null;return;}
+  const prev=voice&&voice.name;
+  voiceSel.innerHTML=voices.map((v,i)=>`<option value="${i}">${esc(v.name)} (${v.lang})</option>`).join("");
+  const idx=Math.max(0,voices.findIndex(v=>v.name===prev));
+  voiceSel.value=String(idx); voice=voices[idx];
+}
+function score(v){let s=0;if(/pt[-_]BR/i.test(v.lang))s+=10;if(/natural|online|neural|google|francisca|luciana|antonio/i.test(v.name))s+=5;return s;}
+if(hasTTS){loadVoices(); speechSynthesis.onvoiceschanged=loadVoices;}
+voiceSel.onchange=()=>{voice=voices[+voiceSel.value]||null;};
+$("#rate").onchange=e=>{rate=+e.target.value;};
+
+/* ---------- Motor de reprodução ---------- */
+let cur_i=0, playing=false, timers=[], ctxNow=null;
+function clearAll(){
+  timers.forEach(clearTimeout); timers=[];
+  if(ctxNow) ctxNow.alive=false;
+  if(hasTTS) speechSynthesis.cancel();
+}
+function makeCtx(instant){
+  const c={instant,alive:true,at(ms,fn){ if(instant){fn();return;} timers.push(setTimeout(()=>{if(c.alive)fn();},ms)); }};
+  return c;
+}
+function render(i,instant){
+  const sc=S[i];
+  stage.classList.toggle("gui",!!sc.gui);
+  layer.classList.toggle("static",!!instant);
+  let html;
+  if(sc.term) html=termHtml("aluno@ubuntu: ~")+(sc.extra||"");
+  else html=sc.html();
+  layer.innerHTML=html;
+  secEl.textContent=sc.gui?"":SEC[sc.s];
+  if(sc.legend){legendEl.innerHTML=sc.legend;legendEl.style.display="block";} else legendEl.style.display="none";
+  keycast(""); cursorEl.style.opacity=0; cap.textContent="";
+  let st=null;
+  if(sc.term){st=termStateAt(i); renderTerm(st);}
+  updateUI();
+  return st;
+}
+function runAct(sc,ctx,st){
+  if(sc.term) return termAct(ctx,sc,st);
+  if(sc.act) return sc.act(ctx);
+  return 0;
+}
+function show(i){ /* quadro estático, sem som */
+  clearAll(); cur_i=i;
+  const st=render(i,true);
+  const ctx=makeCtx(true); ctxNow=ctx;
+  runAct(S[i],ctx,st); keycast("");
+  if(S[i].gui) cursorEl.style.opacity=0;
+  cap.textContent="";
+}
+function play(i){
+  clearAll(); cur_i=i;
+  if(i>=S.length){playing=false;cur_i=S.length-1;show(cur_i);updateUI();return;}
+  const sc=S[i], st=render(i,false);
+  const ctx=makeCtx(false); ctxNow=ctx;
+  let speechDone=false, actDone=false;
+  const finish=()=>{ if(speechDone&&actDone&&ctx.alive&&playing){ reportScene(i); timers.push(setTimeout(()=>{if(ctx.alive)play(i+1);},1000)); } };
+  const total=runAct(sc,ctx,st);
+  ctx.at(total,()=>{actDone=true;finish();});
+  speak(splitSent(sc.say),ctx,()=>{speechDone=true;finish();});
+}
+/* Embutida no Linux Lab, avisa cada cena assistida até o fim (conta no progresso da aula) */
+function reportScene(i){ if(window.self!==window.top) parent.postMessage({type:"videoaula-cena",scene:i,total:S.length},"*"); }
+function speak(sents,ctx,done){
+  let k=0;
+  const next=()=>{
+    if(!ctx.alive) return;
+    if(k>=sents.length){done();return;}
+    const s=sents[k++]; cap.textContent=s;
+    const est=Math.max(1800,s.split(/\s+/).length*430/rate);
+    if(hasTTS&&voice){
+      let fired=false;
+      const go=()=>{if(fired)return;fired=true;next();};
+      const u=new SpeechSynthesisUtterance(forSpeech(s));
+      u.voice=voice; u.lang=voice.lang; u.rate=rate;
+      u.onend=()=>timers.push(setTimeout(go,220)); u.onerror=go;
+      timers.push(setTimeout(go,est*2+4000)); /* proteção caso o navegador não avise o fim */
+      speechSynthesis.speak(u);
+    } else timers.push(setTimeout(next,est));
+  };
+  next();
+}
+
+/* ---------- Interface da página ---------- */
+const playBtn=$("#play"), status=$("#status"), prog=$("#prog"), chapters=$("#chapters");
+SEC.forEach((name,si)=>{
+  const b=document.createElement("button"); b.type="button"; b.textContent=name;
+  b.onclick=()=>{const i=S.findIndex(x=>x.s===si); goTo(i);};
+  chapters.appendChild(b);
+});
+function updateUI(){
+  playBtn.textContent=playing?"⏸ Pausar":"▶ Reproduzir";
+  status.textContent=`Cena ${cur_i+1} de ${S.length}`;
+  prog.style.width=((cur_i+1)/S.length*100)+"%";
+  [...chapters.children].forEach((b,si)=>b.classList.toggle("on",S[cur_i].s===si));
+}
+function startPlay(i){ $("#start").classList.add("hide"); playing=true; play(i); }
+function togglePlay(){ if(playing){playing=false; show(cur_i);} else startPlay(cur_i); updateUI(); }
+function goTo(i){ i=Math.max(0,Math.min(S.length-1,i)); $("#start").classList.add("hide"); if(playing) play(i); else show(i); }
+$("#startBtn").onclick=()=>startPlay(0);
+playBtn.onclick=togglePlay;
+$("#prev").onclick=()=>goTo(cur_i-1);
+$("#next").onclick=()=>goTo(cur_i+1);
+const capBtn=$("#capBtn");
+capBtn.onclick=()=>{const off=stage.classList.toggle("nocap");capBtn.textContent="Legendas: "+(off?"desligadas":"ligadas");capBtn.setAttribute("aria-pressed",String(!off));};
+function toggleFs(){ if(document.fullscreenElement) document.exitFullscreen(); else if(frame.requestFullscreen) frame.requestFullscreen(); }
+$("#fs").onclick=toggleFs;
+document.addEventListener("fullscreenchange",()=>setTimeout(fit,50));
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="SELECT") return;
+  if(e.code==="Space"){e.preventDefault();togglePlay();}
+  else if(e.key==="ArrowRight") goTo(cur_i+1);
+  else if(e.key==="ArrowLeft") goTo(cur_i-1);
+  else if(e.key==="f"||e.key==="F") toggleFs();
+  else if(e.key==="l"||e.key==="L") capBtn.click();
+});
+render(0,true); cap.textContent="";
+
+/* ---------- Modo embutido: informa a altura à página principal ---------- */
+if(window.self!==window.top){
+  const sendHeight=()=>parent.postMessage({type:"videoaula-height",height:document.body.getBoundingClientRect().height},"*");
+  new ResizeObserver(sendHeight).observe(document.body); sendHeight();
+}
+})();
+</script>
+</body>
+</html>
