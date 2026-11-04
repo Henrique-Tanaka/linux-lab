@@ -170,6 +170,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Atkinson Hyperle
 .perm-t{color:#c8cfda}.perm-u{color:#7be0a6;font-weight:700}.perm-g{color:#7cc4ff;font-weight:700}.perm-o{color:#ffb07a;font-weight:700}
 .permbox{position:absolute;left:240px;right:240px;top:470px;background:#f2efe6;color:#1b2433;border-radius:20px;padding:24px 40px;display:none;align-items:center;gap:40px;font-size:34px;z-index:4}
 .permbox.on{display:flex}
+.permbox.low{top:822px;padding:14px 36px;gap:24px}
 .permbox .pm{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:64px;font-weight:700;display:flex;gap:16px}
 .permbox .pm span{display:flex;flex-direction:column;align-items:center}
 .permbox .pm em{font-style:normal;font-family:"Atkinson Hyperlegible",Verdana,sans-serif;font-size:26px;font-weight:700}
@@ -252,7 +253,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Atkinson Hyperle
       <div class="caption" id="cap"></div>
       <div class="start" id="start">
         <button id="startBtn" type="button">▶ Iniciar videoaula</button>
-        <p>Duração aproximada: 16 a 19 minutos. Ative o som do dispositivo.</p>
+        <p>Duração aproximada: 20 a 24 minutos. Ative o som do dispositivo.</p>
       </div>
     </div>
   </div>
@@ -407,12 +408,21 @@ function termStateAt(i){
   if(S[i].term&&S[i].term.reset) st={lines:[],cwd:"~"};
   return st;
 }
+/* Passos do terminal: cmd = comando final; partial = o que é digitado antes de apertar Tab;
+   recall = comando trazido pela seta ↑ (sem digitar); marks = [[ms, função]] para exibir avisos. */
 function termAct(ctx,sc,st){
   let t=700;
+  (sc.term.marks||[]).forEach(([ms,fn])=>ctx.at(ms,fn));
   sc.term.steps.forEach(s=>{
-    const c=s.cmd;
-    for(let k=1;k<=c.length;k++) ctx.at(t+k*90,()=>{txt("live",c.slice(0,k)); keycast(c.slice(0,k));});
-    t+=c.length*90+1000;
+    const c=s.cmd, typed=s.partial||c;
+    if(s.recall){
+      ctx.at(t+400,()=>{txt("live",c); keycast(s.key||"↑");});
+      t+=1800;
+    } else {
+      for(let k=1;k<=typed.length;k++) ctx.at(t+k*90,()=>{txt("live",typed.slice(0,k)); keycast(typed.slice(0,k));});
+      t+=typed.length*90+1000;
+      if(s.partial){ ctx.at(t,()=>{txt("live",c); keycast(s.key||"Tab ⇥");}); t+=1500; }
+    }
     ctx.at(t,()=>{applyStep(st,s); renderTerm(st); keycast(c+"  ⏎"); if(s.after) s.after();});
     t+=s.wait||2800;
   });
@@ -468,6 +478,21 @@ function flow(o){
   return `<div class="fc" style="width:${o.w}px;height:${o.h}px"><svg viewBox="0 0 ${o.w} ${o.h}">${svg}</svg>${nodes}${labels}</div>`;
 }
 
+function cmdFlow(second){
+  const q=second?.1:null;
+  const nodes=[
+   {id:'u',x:120,y:130,w:210,h:150,cls:'blue',d:second?.1:4.8,t:'⌨️ Você<small>digita</small>'},
+   {id:'t',x:465,y:130,w:210,h:150,d:second?.1:6.8,t:'Terminal<small>a janela</small>'},
+   {id:'s',x:810,y:130,w:210,h:150,cls:'hot',d:second?.1:9.5,t:'Shell<small>bash</small>'}];
+  const ed=[{a:'u',b:'t',cls:'hot',d:second?.1:7.3,label:'texto',ly:84},{a:'t',b:'s',cls:'hot',d:second?.1:10,label:'comando',ly:84}];
+  if(second){
+    nodes.push({id:'k',x:1155,y:130,w:210,h:150,d:3.2,t:'Kernel<small>o núcleo</small>'},{id:'h',x:1500,y:130,w:210,h:150,d:6.5,t:'Hardware<small>disco</small>'});
+    ed.push({a:'s',b:'k',cls:'hot',d:3.7,label:'pede',ly:84},{a:'k',b:'h',cls:'hot',d:7,label:'acessa',ly:84},
+      {a:'h',b:'u',loop:350,cls:'dash',d:9.3,label:'o resultado volta pelo mesmo caminho, até a tela'});
+  }
+  return flow({w:1600,h:420,nodes:nodes,edges:ed});
+}
+
 /* ---------- Cenas ---------- */
 const SEC=["1. Abertura","2. O que é Linux?","3. Interface gráfica","4. Arquivos e pastas","5. Terminal","6. Usuários e permissões","7. Prática e encerramento"];
 const S=[
@@ -476,7 +501,7 @@ const S=[
  html:()=>`<div class="slide center"><p class="t-note rv">Videoaula para iniciantes, com Ubuntu 26.04.1 LTS</p><h1 class="t-hero rv" style="--d:.3s">Fundamentos do Linux</h1><p class="t-sub rv" style="--d:.7s">primeiros passos</p></div>`},
 {s:0,say:"Quero começar com uma pergunta: como o computador consegue executar programas, organizar arquivos e controlar seus equipamentos, como o teclado, o mouse e a impressora?",
  html:()=>`<div class="slide center"><p class="t-q rv">Como o computador consegue <span class="chalk">executar programas</span>, <span class="chalk">organizar arquivos</span> e <span class="chalk">controlar seus equipamentos</span>?</p><p class="t-note rv" style="--d:5s;margin-top:40px;font-size:60px">⌨️ 🖱️ 🖨️</p></div>`},
-{s:0,say:"A resposta é o sistema operacional. Sistema operacional é o programa principal do computador. Ele funciona como um gerente: distribui a memória, organiza os arquivos, conversa com os equipamentos e permite que os outros programas funcionem. Windows, macOS e Linux são exemplos de sistemas operacionais.",
+{s:0,say:"A resposta é o sistema operacional. Sistema operacional é o programa principal do computador. Ele funciona como um gerente: distribui a memória, organiza os arquivos, conversa com os equipamentos, que formam o hardware, e permite que os outros programas funcionem. Windows, macOS e Linux são exemplos de sistemas operacionais.",
  html:()=>`<div class="slide center"><h2 class="t-h rv">O sistema operacional é o gerente do computador</h2>${flow({w:1600,h:450,nodes:[
    {id:'pr',x:420,y:48,w:640,h:86,d:4,t:'Programas<small>navegador, editor, jogos</small>'},
    {id:'os',x:420,y:225,w:640,h:104,cls:'hot',d:1.5,t:'Sistema operacional<small>o gerente</small>'},
@@ -494,6 +519,11 @@ const S=[
    <div class="card lightup" style="--d:3.2s"><span class="ico">🖥️</span>A interface</div>
    <div class="card lightup" style="--d:5s"><span class="ico">🗂️</span>Arquivos e pastas</div>
    <div class="card lightup" style="--d:7s"><span class="ico">⌨️</span>O terminal</div></div></div>`},
+{s:0,say:"Você pode acompanhar de duas formas: no Ubuntu, se já o tiver instalado, ou no terminal simulado da plataforma, direto no navegador. A pasta de treino aqui se chama aula-linux; no simulador, estudos. Os comandos são os mesmos. Depois, o quiz e o modo carreira ajudam a fixar.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">Como acompanhar</h2><div class="two">
+   <div class="panel rv" style="--d:4s"><span class="big" style="font-size:96px">🐧</span><h3>No Ubuntu</h3>Se você já tem o sistema instalado.<br><small>pasta de treino: <b>aula-linux</b></small></div>
+   <div class="panel rv" style="--d:8s;border:4px solid #f6b93b"><span class="big" style="font-size:96px">🌐</span><h3>No terminal simulado</h3>Direto no navegador, sem instalar nada.<br><small>pasta de treino: <b>estudos</b></small></div></div>
+   <p class="t-note rv" style="--d:15s;margin:34px 0 0">Depois do vídeo: módulos · quiz · modo carreira</p></div>`},
 /* 2 */
 {s:1,say:"Quando falamos “Linux”, estamos falando, na verdade, de uma peça chamada kernel. Kernel quer dizer núcleo: é a parte mais interna do sistema, que conversa diretamente com o hardware, ou seja, com as peças físicas do computador. O kernel Linux foi criado em 1991 por Linus Torvalds.",
  html:()=>`<div class="slide">${flow({w:1600,h:620,nodes:[
@@ -505,7 +535,7 @@ const S=[
    {id:'y',x:1390,y:300,w:360,h:130,cls:'ghost',d:14,t:'1991<small>criado por Linus Torvalds</small>'}],
   edges:[{a:'pr',b:'k',d:5,label:'pedem',lx:910,ly:140},
    {a:'k',b:'cpu',both:true,cls:'hot',d:9.4},{a:'k',b:'mem',both:true,cls:'hot',d:10.4},{a:'k',b:'disk',both:true,cls:'hot',d:11.4}]})}</div>`},
-{s:1,say:"Só o núcleo, porém, não basta para usar o computador no dia a dia. Por isso existem as distribuições: pacotes completos que juntam o kernel Linux com outros programas, como área de trabalho, navegador e editor de texto. Exemplos de distribuições são o Ubuntu, o Debian e o Fedora. Todas usam o mesmo núcleo, mas cada uma tem seu estilo.",
+{s:1,say:"Só o núcleo, porém, não basta para usar o computador no dia a dia. Por isso existem as distribuições: pacotes completos que juntam o kernel Linux com outros programas, como área de trabalho, navegador e editor de texto. Exemplos de distribuições são o Ubuntu, o Debian e o Fedora. Todas usam o mesmo núcleo. O Ubuntu é amigável para iniciantes, o Debian é conhecido pela estabilidade e o Fedora traz as novidades primeiro.",
  html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center">Distribuição = kernel Linux + programas</h2>${flow({w:1600,h:470,nodes:[
    {id:'k',x:330,y:105,w:460,h:110,cls:'hot',d:.5,t:'Kernel Linux<small>o núcleo</small>'},
    {id:'p',x:330,y:335,w:460,h:120,cls:'blue',d:6.5,t:'Programas<small>desktop, navegador, editor</small>'},
@@ -520,12 +550,14 @@ const S=[
    <div class="panel rv" style="--d:2.5s"><span class="big">📦🔒</span><h3>Programa fechado</h3>Você recebe só o bolo pronto.</div>
    <div class="panel rv" style="--d:6s;border:4px solid #f6b93b"><span class="big">🎂📜</span><h3>Código aberto</h3><ul><li>ler</li><li>estudar</li><li>adaptar</li><li>compartilhar</li></ul></div></div>
    <p class="t-note rv" style="--d:13s;text-align:center;margin-top:30px">Código-fonte: as instruções que formam o programa</p></div>`},
-{s:1,say:"O Linux está em computadores pessoais, mas também em boa parte dos servidores, que são computadores que ficam ligados o tempo todo oferecendo serviços como sites e aplicativos. Está ainda em celulares Android e em muitos aparelhos do dia a dia. Nesta aula, vamos usar o Ubuntu 26.04.1 LTS. LTS significa suporte de longo prazo: a versão recebe atualizações por vários anos.",
+{s:1,say:"O Linux está em computadores pessoais, mas também em boa parte dos servidores, que são computadores que ficam ligados o tempo todo oferecendo serviços, como sites e aplicativos. Está ainda em celulares Android e em muitos aparelhos do dia a dia.",
  html:()=>`<div class="slide center"><h2 class="t-h rv">Onde o Linux está</h2><div class="cards" style="grid-template-columns:repeat(3,1fr)">
    <div class="card lightup" style="--d:.8s"><span class="ico">💻</span>Computadores pessoais</div>
    <div class="card lightup" style="--d:3s"><span class="ico">🗄️</span>Servidores</div>
-   <div class="card lightup" style="--d:10s"><span class="ico">📱</span>Celulares Android</div></div>
-   <p class="rv" style="--d:15s;margin-top:50px;font-size:48px;font-weight:700;background:#f6b93b;color:#1b2433;padding:16px 40px;border-radius:999px">Nesta aula: Ubuntu 26.04.1 LTS (suporte de longo prazo)</p></div>`},
+   <div class="card lightup" style="--d:10s"><span class="ico">📱</span>Celulares Android</div></div></div>`},
+{s:1,say:"Nesta aula, vamos usar o Ubuntu 26.04.1 LTS. LTS significa suporte de longo prazo: a versão recebe atualizações por vários anos.",
+ html:()=>`<div class="slide center"><p class="t-note rv">Nesta aula</p><h2 class="t-hero rv" style="--d:.4s;font-size:110px">Ubuntu 26.04.1 LTS</h2>
+   <p class="t-sub rv" style="--d:4s">LTS = suporte de longo prazo</p><p class="t-note rv" style="--d:7.5s;margin-top:30px">a versão recebe atualizações por vários anos</p></div>`},
 /* 3 */
 {s:2,gui:1,say:"Esta é a área de trabalho do Ubuntu. Interface gráfica é o jeito de usar o computador com janelas, ícones e o mouse. À esquerda fica a dock, uma barra com os programas mais usados. No alto, a barra superior mostra data, hora e o menu do sistema.",
  legend:"<b>Área de trabalho</b> do Ubuntu 26.04.1 LTS",
@@ -562,7 +594,7 @@ const S=[
    let t=typeInto(ctx,3000,"files-search","anotacoes",170);
    ctx.at(t+300,()=>{on("tiles",false);q("tiles").style.display="none";on("results");hl("result-1");cur("result-1");});return t+4000;}},
 /* 4 */
-{s:3,say:"No Linux, as pastas também são chamadas de diretórios. Elas formam uma árvore de cabeça para baixo. Lá no topo fica o diretório raiz, representado por uma barra. Tudo no sistema começa ali, inclusive pastas como /home, onde moram as pastas dos usuários.",
+{s:3,say:"No Linux, as pastas também são chamadas de diretórios; para nós, é a mesma coisa. Elas formam uma árvore de cabeça para baixo. Lá no topo fica o diretório raiz, representado por uma barra. Tudo no sistema começa ali, inclusive pastas como /home, onde moram as pastas dos usuários.",
  html:()=>`<div class="slide">${flow({w:1600,h:690,nodes:[
    {id:'r',x:800,y:70,w:230,h:110,cls:'hot mono',d:5,t:'/<small>raiz</small>'},
    {id:'home',x:400,y:290,w:360,h:110,cls:'blue mono',d:12,t:'home<small>pastas dos usuários</small>'},
@@ -584,24 +616,23 @@ const S=[
    <div class="rv" style="--d:5s;display:flex;gap:50px;align-items:center"><span class="path">Notas.txt</span><span style="font-size:120px;color:#ff8a65;font-weight:700">≠</span><span class="path">notas.txt</span></div>
    <div class="panel rv" style="--d:11s;margin-top:60px;border:4px solid #f6b93b;text-align:left">Boa prática: minúsculas, sem espaços e sem acentos.<br><span class="mono chalk">aula-linux</span> e <span class="mono chalk">anotacoes.txt</span></div></div>`},
 /* 5 */
-{s:4,say:"Agora, o terminal. Terminal é um programa onde você dá ordens ao computador escrevendo comandos, que são palavras com instruções. Parece assustador, mas é como conversar com o sistema por mensagens. Para abrir, pressione Ctrl + Alt + T. Veja o texto aluno@ubuntu:~$. Isso é o prompt: ele mostra o usuário, o nome do computador e a pasta atual, o til. O cifrão indica que ele está esperando um comando.",
+{s:4,say:"Agora, o terminal. Terminal é um programa onde você dá ordens ao computador escrevendo comandos, que são palavras com instruções. Parece assustador, mas é como conversar com o sistema por mensagens. E por que usar? Porque é mais rápido para tarefas repetitivas, e é assim que se administram servidores.",
  html:()=>`<div class="slide center"><h2 class="t-h rv">O terminal</h2>
-   <p class="rv" style="--d:9s;font-size:46px;margin:0 0 50px">Para abrir: <span class="keycap">Ctrl</span>+<span class="keycap">Alt</span>+<span class="keycap">T</span></p>
-   <div class="prompt-big rv" style="--d:13s">
-     <span><b class="pu">aluno</b><em class="rv" style="--d:19s">usuário</em></span><span class="pu">@</span>
-     <span><b class="pu">ubuntu</b><em class="rv" style="--d:20s">computador</em></span><span>:</span>
-     <span><b class="pp">~</b><em class="rv" style="--d:22s">pasta atual</em></span>
-     <span><b>$</b><em class="rv" style="--d:24s">aguardando</em></span></div></div>`},
-{s:4,say:"Antes de digitar comandos, vale entender o que acontece quando você aperta Enter. Você digita o comando no terminal. O terminal entrega o texto ao shell, o interpretador de comandos; no Ubuntu, ele se chama bash. O shell entende o que você pediu e pede o serviço ao kernel. O kernel conversa com o hardware, por exemplo o disco, e o resultado volta pelo mesmo caminho, até a tela.",
- html:()=>`<div class="slide center"><h2 class="t-h rv">O caminho de um comando</h2>${flow({w:1600,h:420,nodes:[
-   {id:'u',x:120,y:130,w:210,h:150,cls:'blue',d:6.5,t:'⌨️ Você<small>digita</small>'},
-   {id:'t',x:465,y:130,w:210,h:150,d:9,t:'Terminal<small>a janela</small>'},
-   {id:'s',x:810,y:130,w:210,h:150,cls:'hot',d:12,t:'Shell<small>bash</small>'},
-   {id:'k',x:1155,y:130,w:210,h:150,d:18.5,t:'Kernel<small>o núcleo</small>'},
-   {id:'h',x:1500,y:130,w:210,h:150,d:22.5,t:'Hardware<small>disco</small>'}],
-  edges:[{a:'u',b:'t',cls:'hot',d:9.5,label:'texto',ly:84},{a:'t',b:'s',cls:'hot',d:12.5,label:'comando',ly:84},
-   {a:'s',b:'k',cls:'hot',d:19,label:'pede',ly:84},{a:'k',b:'h',cls:'hot',d:23,label:'acessa',ly:84},
-   {a:'h',b:'u',loop:350,cls:'dash',d:27,label:'o resultado volta pelo mesmo caminho, até a tela'}]})}</div>`},
+   <p class="t-q rv" style="--d:5.5s;font-size:56px;margin-bottom:40px">Ordens escritas, como mensagens</p><div class="two">
+   <div class="panel rv" style="--d:11.5s"><h3>⚡ Mais rápido</h3>para tarefas repetitivas</div>
+   <div class="panel rv" style="--d:16s;border:4px solid #f6b93b"><h3>🗄️ Servidores</h3>é assim que se administram</div></div></div>`},
+{s:4,say:"Para abrir, pressione Ctrl + Alt + T. Veja o texto aluno@ubuntu:~$. Isso é o prompt: ele mostra o usuário, o nome do computador e a pasta atual, o til. O cifrão indica que ele está esperando um comando.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O prompt</h2>
+   <p class="rv" style="--d:1.5s;font-size:46px;margin:0 0 50px">Para abrir: <span class="keycap">Ctrl</span>+<span class="keycap">Alt</span>+<span class="keycap">T</span></p>
+   <div class="prompt-big rv" style="--d:5.5s">
+     <span><b class="pu">aluno</b><em class="rv" style="--d:10.5s">usuário</em></span><span class="pu">@</span>
+     <span><b class="pu">ubuntu</b><em class="rv" style="--d:12s">computador</em></span><span>:</span>
+     <span><b class="pp">~</b><em class="rv" style="--d:14.5s">pasta atual</em></span>
+     <span><b>$</b><em class="rv" style="--d:17s">aguardando</em></span></div></div>`},
+{s:4,say:"Antes de digitar comandos, vale entender o que acontece quando você aperta Enter. Você digita o comando no terminal, e o terminal entrega o texto ao shell, o interpretador de comandos. No Ubuntu, ele se chama bash.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O caminho de um comando</h2>${cmdFlow(false)}</div>`},
+{s:4,say:"O shell entende o que você pediu e pede o serviço ao kernel. O kernel conversa com o hardware, por exemplo o disco, e o resultado volta pelo mesmo caminho, até a tela.",
+ html:()=>`<div class="slide center"><h2 class="t-h rv">O caminho de um comando</h2>${cmdFlow(true)}</div>`},
 {s:4,legend:"<b>pwd</b> = mostrar o diretório atual",
  say:"Primeiro comando: pwd, que mostra em qual diretório você está agora. Digite pwd e pressione Enter.",
  term:{reset:true,steps:[{cmd:"pwd",out:[o("/home/aluno")],wait:4000}]}},
@@ -611,6 +642,9 @@ const S=[
 {s:4,legend:"<b>cd</b> = mudar de diretório",
  say:"Para entrar na pasta, usamos cd, de “change directory”, mudar de diretório. Digite cd, espaço, aula-linux. Veja que o prompt mudou para ~/aula-linux. Vamos confirmar com pwd e listar com ls: lá está o nosso anotacoes.txt.",
  term:{steps:[{cmd:"cd aula-linux",cwd:"~/aula-linux",wait:3500},{cmd:"pwd",out:[o("/home/aluno/aula-linux")],wait:3000},{cmd:"ls",out:[o("anotacoes.txt")],wait:3500}]}},
+{s:4,say:"Pausa para pensar. Qual comando mostra em qual pasta você está? Pense um pouco. § A resposta é pwd.",
+ html:()=>`<div class="slide center"><p class="t-note rv">⏸ Pausa para pensar</p><p class="t-q rv" style="--d:1.2s">Qual comando mostra em qual pasta você está?</p>
+   <div class="path rv" style="--d:10s;margin-top:50px"><span class="t">pwd</span></div></div>`},
 {s:4,legend:"<b>mkdir</b> = criar uma pasta",
  say:"Agora, o mkdir, de “make directory”, que cria uma pasta. Vamos criar uma pasta chamada copias, sem acento. Repare: o terminal não respondeu nada. No Linux, quando um comando dá certo, muitas vezes ele simplesmente fica em silêncio. O ls confirma que a pasta foi criada.",
  term:{steps:[{cmd:"mkdir copias",wait:6000},{cmd:"ls",out:[o("anotacoes.txt   copias")],wait:3500}]}},
@@ -620,15 +654,34 @@ const S=[
 {s:4,legend:"<b>cat</b> = exibir o conteúdo de um arquivo",
  say:"Para ver o conteúdo de um arquivo de texto, usamos cat. Vamos ler o arquivo que escrevemos no editor. E aqui vai uma prova de que maiúsculas importam: se eu escrever Anotacoes com A maiúsculo, o sistema diz que o arquivo não existe.",
  term:{steps:[{cmd:"cat anotacoes.txt",out:[o("Minha primeira aula de Linux"),o("Hoje aprendi a usar o terminal.")],wait:6000},{cmd:"cat Anotacoes.txt",out:[E("cat: Anotacoes.txt: Arquivo ou diretório inexistente")],wait:5000}]}},
+{s:4,legend:"<b>Tab</b> = completar nomes&emsp;<b>↑</b> = repetir comando",
+ say:"Dois atalhos economizam muita digitação. Digite cat ano e aperte Tab: o terminal completa o nome para você. E a seta para cima repete o comando anterior.",
+ term:{steps:[{cmd:"cat anotacoes.txt",partial:"cat ano",key:"Tab ⇥",out:[o("Minha primeira aula de Linux"),o("Hoje aprendi a usar o terminal.")],wait:3500},
+   {cmd:"cat anotacoes.txt",recall:true,key:"↑",out:[o("Minha primeira aula de Linux"),o("Hoje aprendi a usar o terminal.")],wait:3500}]}},
+{s:4,legend:"<b>Erro</b> = o terminal explicando o que faltou",
+ say:"Agora, algo importante: errar faz parte. Se você tentar entrar numa pasta que não existe, o terminal mostra uma mensagem de erro. Leia com calma: ela diz o que deu errado. Aqui, a pasta documentos não existe. E aqui, a pasta copias já existe. Erro não quebra nada: leia, corrija e tente de novo.",
+ term:{steps:[{cmd:"cd documentos",out:[E("bash: cd: documentos: Arquivo ou diretório inexistente")],wait:7000},
+   {cmd:"mkdir copias",out:[E("mkdir: não foi possível criar o diretório 'copias': Arquivo existe")],wait:7500}]}},
 {s:4,legend:"<b>cp</b> origem destino = copiar",
  say:"Agora vamos copiar, com cp. A ordem é: cp, o arquivo de origem e, depois, o destino. Vou copiar anotacoes.txt para dentro da pasta copias. A barra no final indica que copias é uma pasta. Para conferir, uso ls seguido do nome da pasta.",
  term:{steps:[{cmd:"cp anotacoes.txt copias/",wait:3500},{cmd:"ls copias",out:[o("anotacoes.txt")],wait:4000}]}},
 {s:4,legend:"<b>mv</b> = mover ou renomear",
  say:"O mv tem duas funções: renomear e mover. Primeiro, renomear: lista.txt passa a se chamar tarefas.txt. Depois, mover: tarefas.txt vai para dentro da pasta copias. Diferente do cp, o mv não deixa o original para trás.",
  term:{steps:[{cmd:"mv lista.txt tarefas.txt",wait:2000},{cmd:"ls",out:[o("anotacoes.txt   copias   tarefas.txt")],wait:3000},{cmd:"mv tarefas.txt copias/",wait:2000},{cmd:"ls",out:[o("anotacoes.txt   copias")],wait:2500},{cmd:"ls copias",out:[o("anotacoes.txt   tarefas.txt")],wait:3500}]}},
+{s:4,say:"Outra pausa para pensar. Qual é a diferença entre cp e mv? Pense um pouco. § O cp copia e deixa o original no lugar. O mv move, e o original sai de onde estava.",
+ html:()=>`<div class="slide center"><p class="t-note rv">⏸ Pausa para pensar</p><p class="t-q rv" style="--d:1.2s">Qual é a diferença entre cp e mv?</p><div class="two" style="margin-top:40px">
+   <div class="panel rv" style="--d:12s"><h3>cp</h3>copia: o original fica</div>
+   <div class="panel rv" style="--d:14.5s;border:4px solid #f6b93b"><h3>mv</h3>move: o original sai</div></div></div>`},
+{s:4,legend:"<b>rm</b> = apagar (sem lixeira!)",
+ say:"Para apagar, usamos rm. Atenção: no terminal não existe lixeira, e o que você apaga some de vez. Por isso, confira o nome antes de apertar Enter. Vamos apagar o tarefas.txt, de dentro da pasta copias.",
+ extra:`<div class="permbox low" data-id="warn"><span style="font-size:48px">⚠️</span><div style="font-weight:700;font-size:38px">No terminal não existe lixeira: apagou, sumiu.</div></div>`,
+ term:{marks:[[3500,()=>on("warn")]],steps:[{cmd:"rm copias/tarefas.txt",wait:3500},{cmd:"ls copias",out:[o("anotacoes.txt")],wait:3500}]}},
 {s:4,legend:"<b>..</b> = pasta de cima&emsp;<b>~</b> = pasta pessoal",
  say:"Para voltar uma pasta, use cd, espaço, dois pontos. Os dois pontos significam “a pasta de cima”. E cd seguido de til leva você de volta à pasta pessoal; aqui, vou direto para ~/aula-linux.",
  term:{steps:[{cmd:"cd ..",cwd:"~",wait:2000},{cmd:"pwd",out:[o("/home/aluno")],wait:2500},{cmd:"cd ~/aula-linux",cwd:"~/aula-linux",wait:3000}]}},
+{s:4,legend:"<b>--help</b> e <b>man</b> = aprender sozinho",
+ say:"Quer saber como um comando funciona? Digite o nome dele seguido de --help, e o terminal mostra um resumo. Para o manual completo, use man e o nome do comando; para sair dele, aperte a tecla q. Assim você aprende sozinho.",
+ term:{steps:[{cmd:"ls --help",out:[o("Uso: ls [OPÇÃO]... [ARQUIVO]..."),o("Liste informações sobre os ARQUIVOs (o diretório atual por padrão)."),o("  -a, --all    não ignora entradas começando com ."),o("  -l           usa o formato de listagem longa")],wait:8000}]}},
 {s:4,legend:"<b>clear</b> = limpar a tela",
  say:"Por fim, clear limpa a tela. Ele não apaga arquivos nem o histórico: só deixa a janela organizada.",
  term:{steps:[{cmd:"clear",clear:true,wait:3500}]}},
@@ -638,19 +691,22 @@ const S=[
    <div class="panel rv" style="--d:5s"><span class="big">🙋🔑</span><h3>Usuário comum</h3>Cuida dos próprios arquivos. Tem a chave da própria casa.</div>
    <div class="panel rv" style="--d:9s;border:4px solid #f6b93b"><span class="big">🛡️🗝️</span><h3>Administrador (root)</h3>Pode alterar o sistema inteiro. Tem a chave do prédio.</div></div></div>`},
 {s:5,legend:"<b>r</b> leitura&emsp;<b>w</b> escrita&emsp;<b>x</b> execução",
- say:"Cada arquivo tem permissões: r, de leitura, permite ver; w, de escrita, permite alterar; e x, de execução, permite rodar como programa. Veja com ls -l, que lista com detalhes. O primeiro caractere indica o tipo: traço para arquivo, d para diretório. Depois vêm três grupos: o dono, o grupo e os outros usuários. Um traço significa “sem essa permissão”.",
- extra:`<div class="permbox" data-id="permbox"><div class="pm"><span>-<em>tipo</em></span><span class="u">rw-<em>dono</em></span><span class="g">rw-<em>grupo</em></span><span class="o">r--<em>outros</em></span></div><div>r = ler<br>w = alterar<br>x = executar<br>- = sem permissão</div></div>`,
+ say:"Cada arquivo tem permissões: r, de leitura, permite ver; w, de escrita, permite alterar; e x, de execução, permite rodar como programa. Veja com ls -l, que lista com detalhes.",
  term:{steps:[{cmd:"ls -l",out:[o("total 8"),
    `<span class="perm-t">-</span><span class="perm-u">rw-</span><span class="perm-g">rw-</span><span class="perm-o">r--</span>${o(" 1 aluno aluno   61 out 23 10:13 anotacoes.txt")}`,
    `<span class="perm-t">d</span><span class="perm-u">rwx</span><span class="perm-g">rwx</span><span class="perm-o">r-x</span>${o(" 2 aluno aluno 4096 out 23 10:18 copias")}`],
-   wait:16000,after:()=>on("permbox")}]}},
+   wait:9000}]}},
+{s:5,legend:"<b>-</b>rw-rw-r--&emsp;tipo, dono, grupo, outros",
+ say:"Vamos ler a linha do anotacoes.txt. O primeiro caractere é o tipo: traço para arquivo, d para diretório. Depois vêm três grupos: dono, grupo e outros. Em rw-rw-r--, o dono e o grupo podem ler e escrever, e os outros só podem ler. Um traço significa “sem essa permissão”.",
+ extra:`<div class="permbox" data-id="permbox"><div class="pm"><span>-<em>tipo</em></span><span class="u">rw-<em>dono</em></span><span class="g">rw-<em>grupo</em></span><span class="o">r--<em>outros</em></span></div><div>r = ler<br>w = alterar<br>x = executar<br>- = sem permissão</div></div>`,
+ term:{marks:[[1500,()=>on("permbox")]],steps:[]}},
 {s:5,say:"E o sudo? Ele permite que um usuário autorizado execute um comando com poderes de administrador, pedindo a sua senha. É como pedir a chave do prédio emprestada para uma tarefa específica. Use com cuidado e só quando souber o que o comando faz. Hoje não vamos precisar dele.",
  html:()=>`<div class="slide center"><p class="path rv" style="font-size:110px">sudo</p><h2 class="t-h rv" style="--d:1.5s;margin-top:40px">executar um comando como administrador</h2>
    <div class="panel rv" style="--d:11s;border:4px solid #ff8a65;text-align:left">⚠️ Pede a sua senha. Use com cuidado.<br>Nesta aula, não vamos usar.</div></div>`},
 /* 7 */
 {s:6,say:"Hora do desafio! Dentro da pasta aula-linux: um, crie uma pasta chamada desafio; dois, salve nela, pelo Editor de Texto, um arquivo meu-texto.txt com uma frase sua; três, mostre o conteúdo no terminal; quatro, faça uma cópia chamada meu-texto-copia.txt.",
  html:()=>challenge(false)},
-{s:6,say:"Pause o vídeo e tente agora. Se preferir, use esta contagem de 30 segundos para planejar os comandos.",
+{s:6,say:"Pause o vídeo e tente agora. Uma dica: você vai usar mkdir, cat e cp, além do Editor de Texto. Se preferir, use esta contagem de 30 segundos para planejar.",
  html:()=>challenge(true),
  act:ctx=>{for(let k=0;k<=30;k++) ctx.at(k*1000,()=>txt("timer",String(30-k)));return 31000;}},
 {s:6,legend:"Solução, parte 1: criar a pasta",
@@ -664,18 +720,18 @@ const S=[
  say:"No terminal, entro na pasta com cd, leio o conteúdo com cat e copio com cp, dando um novo nome à cópia. O ls confirma: os dois arquivos estão lá.",
  term:{steps:[{cmd:"cd ~/aula-linux/desafio",cwd:"~/aula-linux/desafio",wait:2000},{cmd:"cat meu-texto.txt",out:[o("Estou aprendendo Linux!")],wait:3000},
    {cmd:"cp meu-texto.txt meu-texto-copia.txt",wait:2000},{cmd:"ls",out:[o("meu-texto-copia.txt   meu-texto.txt")],wait:5000}]}},
-{s:6,say:"Recapitulando: o sistema operacional gerencia o computador; o Linux é o núcleo, e as distribuições, como o Ubuntu, completam o sistema. Os arquivos se organizam a partir da raiz, e o til é a sua pasta pessoal. Você usou pwd, ls, cd, mkdir, touch, cp, mv, cat e clear, e entendeu as permissões e o papel do sudo.",
- html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center;margin-bottom:28px;font-size:62px">Seus nove primeiros comandos</h2><div class="grid9">
-   ${[["pwd","onde estou"],["ls","listar"],["cd","mudar de pasta"],["mkdir","criar pasta"],["touch","criar arquivo vazio"],["cp","copiar"],["mv","mover ou renomear"],["cat","ver o conteúdo"],["clear","limpar a tela"]]
+{s:6,say:"Recapitulando: o sistema operacional gerencia o computador; o Linux é o núcleo, e as distribuições, como o Ubuntu, completam o sistema. Os arquivos se organizam a partir da raiz, e o til é a sua pasta pessoal. Você usou pwd, ls, cd, mkdir, touch, cp, mv, rm, cat e clear, e entendeu as permissões e o papel do sudo.",
+ html:()=>`<div class="slide"><h2 class="t-h rv" style="text-align:center;margin-bottom:28px;font-size:62px">Seus dez primeiros comandos</h2><div class="grid9" style="grid-template-columns:repeat(5,1fr)">
+   ${[["pwd","onde estou"],["ls","listar"],["cd","mudar de pasta"],["mkdir","criar pasta"],["touch","criar arquivo vazio"],["cp","copiar"],["mv","mover ou renomear"],["rm","apagar (sem lixeira)"],["cat","ver o conteúdo"],["clear","limpar a tela"]]
      .map((c,i)=>`<div class="cmdcard rv" style="--d:${12+i*.9}s"><b>${c[0]}</b>${c[1]}</div>`).join("")}</div></div>`},
-{s:6,say:"Continue praticando dentro da sua pasta de estudos. Parabéns pelos primeiros passos, e até a próxima aula!",
- html:()=>`<div class="slide center"><h1 class="t-hero rv" style="font-size:110px">Parabéns pelos primeiros passos!</h1><p class="t-sub rv" style="--d:1s">Continue praticando na pasta aula-linux.</p><p class="t-note rv" style="--d:3s;margin-top:60px">Até a próxima aula.</p></div>`}
+{s:6,say:"Para fixar, faça o quiz e o modo carreira na plataforma, e continue treinando os comandos. Parabéns pelos primeiros passos, e até a próxima aula!",
+ html:()=>`<div class="slide center"><h1 class="t-hero rv" style="font-size:110px">Parabéns pelos primeiros passos!</h1><p class="t-sub rv" style="--d:1s">Agora, o quiz e o modo carreira.</p><p class="t-note rv" style="--d:3s;margin-top:60px">Até a próxima aula.</p></div>`}
 ];
 
 function challenge(withTimer){
   return `<div class="slide"><h2 class="t-h rv" style="margin-bottom:30px">Desafio</h2><div style="display:flex;gap:60px;align-items:center">
    <ol class="steps"><li>Crie a pasta <code>desafio</code> dentro de <code>aula-linux</code></li><li>Salve nela <code>meu-texto.txt</code> com uma frase sua</li><li>Mostre o conteúdo no terminal</li><li>Faça a cópia <code>meu-texto-copia.txt</code></li></ol>
-   ${withTimer?`<div style="text-align:center"><div class="timer" data-id="timer">30</div><div style="font-size:36px">Pause e tente</div></div>`:""}</div></div>`;
+   ${withTimer?`<div style="text-align:center"><div class="timer" data-id="timer">30</div><div style="font-size:36px">Pause e tente</div><div style="font-size:34px;margin-top:22px;color:#f6b93b;white-space:nowrap">Dica: <b class="mono">mkdir · cat · cp</b></div></div>`:""}</div></div>`;
 }
 function editorAct(ctx,text,name,title){
   ctx.at(600,()=>{keycast("Super");on("apps");});
@@ -710,10 +766,26 @@ const PRON=[
  [/r, de leitura/g,"érre, de leitura"],[/w, de escrita/g,"dáblio, de escrita"],[/x, de execução/g,"xis, de execução"],[/d para diretório/g,"dê para diretório"],
  [W("shell"),"xél"],[W("bash"),"béche"],[W("pwd"),"pê dáblio dê"],[W("ls"),"éle ésse"],[W("cd"),"cê dê"],[W("mkdir"),"em cá dir"],[W("touch"),"tâtch"],[W("cat"),"két"],
  [W("cp"),"cê pê"],[W("mv"),"ême vê"],[W("clear"),"clíer"],[W("sudo"),"súdo"],[W("copias"),"cópias"],[W("root"),"rút"],
- [W("dock"),"dóc"],[W("prompt"),"prômpt"],[W("LTS"),"éle tê ésse"],[W("macOS"),"mac ó ésse"],[/~/g,"til"]
+ [W("dock"),"dóc"],[W("prompt"),"prômpt"],[W("LTS"),"éle tê ésse"],[W("macOS"),"mac ó ésse"],
+ [/rw-rw-r--/g,"érre dáblio traço, érre dáblio traço, érre traço traço"],[/--help/g,"traço traço help"],[/tecla q\b/g,"tecla quê"],
+ [W("rm"),"érre ême"],[W("man"),"mén"],[W("Tab"),"Táb"],[W("Enter"),"Ênter"],
+ [W("kernel"),"kérnel"],[W("Android"),"Andróide"],[W("Torvalds"),"Tórvaldz"],[W("Linus"),"Línus"],[W("Debian"),"Débian"],[W("Linux"),"Línux"],
+ [/~/g,"til"]
 ];
 const forSpeech=s=>PRON.reduce((a,[r,v])=>a.replace(r,v),s);
-const splitSent=s=>s.split(/(?<=[.!?…:;])\s+(?=[A-ZÀ-Úa-zà-ú“0-9~])/).filter(Boolean);
+/* Legendas curtas: frases com mais de 14 palavras são quebradas nas vírgulas.
+   O sinal § marca uma pausa de 3,5 s (pausas para pensar). */
+const wc=t=>t.trim().split(/\s+/).length;
+function chunkLong(sent){
+  if(wc(sent)<=14) return [sent];
+  const out=[]; let cur="";
+  sent.split(/(?<=,)\s+/).forEach(p=>{
+    if(cur&&wc(cur)+wc(p)>14){out.push(cur);cur=p;} else cur=cur?cur+" "+p:p;
+  });
+  if(cur){ if(out.length&&wc(cur)<4) out[out.length-1]+=" "+cur; else out.push(cur); }
+  return out;
+}
+const splitSent=s=>s.split(/(?<=[.!?…:;§])\s+(?=[A-ZÀ-Úa-zà-ú“0-9~§])/).filter(Boolean).flatMap(chunkLong);
 
 const hasTTS="speechSynthesis" in window;
 let voices=[], voice=null, rate=1;
@@ -791,7 +863,9 @@ function speak(sents,ctx,done){
   const next=()=>{
     if(!ctx.alive) return;
     if(k>=sents.length){done();return;}
-    const s=sents[k++]; cap.textContent=s;
+    const s=sents[k++];
+    if(s.trim()==="§"){ cap.textContent=""; timers.push(setTimeout(next,3500)); return; }
+    cap.textContent=s;
     const est=Math.max(1800,s.split(/\s+/).length*430/rate);
     if(hasTTS&&voice){
       let fired=false;
