@@ -2651,3 +2651,196 @@ li.is-done > .objective-mark {
     justify-content: flex-start;
   }
 }
+
+/* ------------------------------------------------------------------
+ * Relógio de estudo (15 minutos por módulo)
+ * ------------------------------------------------------------------ */
+
+.estudo-relogio {
+  position: fixed;
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 190px;
+  padding: 0.65rem 0.95rem;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.estudo-icone {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.estudo-corpo {
+  display: grid;
+  gap: 0.1rem;
+  flex: 1;
+}
+
+.estudo-tempo {
+  font-family: var(--monospace);
+  font-size: 1.05rem;
+  color: var(--heading);
+}
+
+.estudo-estado {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.estudo-trilho {
+  display: block;
+  height: 5px;
+  margin-top: 0.3rem;
+  border-radius: 999px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.estudo-barra {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), #7ae3a1);
+  transition: width 0.5s linear;
+}
+
+.estudo-relogio.is-paused {
+  border-color: var(--warn-text);
+}
+
+.estudo-relogio.is-paused .estudo-estado {
+  color: var(--warn-text);
+  font-weight: 700;
+}
+
+.estudo-relogio.is-done {
+  border-color: var(--ok-text);
+}
+
+.estudo-relogio.is-done .estudo-estado {
+  color: var(--ok-text);
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .estudo-relogio {
+    min-width: 0;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .estudo-estado {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Página do criador
+ * ------------------------------------------------------------------ */
+
+.criador-card {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #0d1b2a 0%, #142c46 52%, #1c3f5a 100%);
+  color: #ffffff;
+  border: 1px solid #1c3f5a;
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.criador-avatar {
+  flex: none;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--green), #66d89d);
+  color: #062a1c;
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.criador-papel {
+  margin: 0 0 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9ce7c5;
+}
+
+.criador-nome {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.5rem, 3.4vw, 2.3rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.criador-info p:not(.criador-papel) {
+  margin: 0 0 1.1rem;
+  max-width: 52ch;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.linkedin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.2rem 0.7rem 0.8rem;
+  background: #0a66c2;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 12px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.linkedin-btn:hover,
+.linkedin-btn:focus-visible {
+  background: #004182;
+  transform: translateY(-2px);
+}
+
+.linkedin-logo {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0a66c2;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.criador-projeto h3 {
+  margin-top: 0;
+}
+
+@media (max-width: 700px) {
+  .criador-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+  }
+
+  .criador-avatar {
+    width: 5rem;
+    height: 5rem;
+    font-size: 1.8rem;
+  }
+}

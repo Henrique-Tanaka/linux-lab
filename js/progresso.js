@@ -21,12 +21,9 @@ document.getElementById('clearProgress')?.addEventListener('click', (event) => {
  * ------------------------------------------------------------------ */
 
 const progress = {
-  dwell: {},
-  seenEnd: {},
-  read: [],
+  dwell: {}, // segundos de estudo ativo em cada módulo
   commands: [],
   builderUsed: false,
-  need: {}, // segundos de leitura exigidos por módulo, guardados porque cada módulo é uma página
   video: { scenes: [], total: 0 },
   done: [],
   celebrated: false,
@@ -34,8 +31,12 @@ const progress = {
 };
 saved.progress = progress;
 delete saved.reachedSection; // formato antigo, que media apenas a rolagem da página
+['seenEnd', 'read', 'need'].forEach((key) => delete progress[key]); // regra antiga: leitura até o fim da página
 
 const QUIZ_PASS = Math.ceil(baseQuestions.length * 0.7);
+const STUDY_MINUTES = 15; // tempo de estudo ativo exigido em cada módulo
+const STUDY_SECONDS = STUDY_MINUTES * 60;
+const IDLE_SECONDS = 120; // sem mexer na página por este tempo, o relógio pausa
 const VIDEO_GOAL = 0.8; // fração das cenas da videoaula que precisa ser assistida até o fim
 const COMMANDS_GOAL = 5;
 const IGNORED_COMMANDS = ['help', 'clear', 'reset', 'history'];
@@ -43,12 +44,14 @@ const IGNORED_COMMANDS = ['help', 'clear', 'reset', 'history'];
 const usedCommands = (...names) => names.every((name) => progress.commands.includes(name));
 const videoScenesNeeded = () => Math.ceil(progress.video.total * VIDEO_GOAL);
 
-function readObjective(sectionId) {
+const formatClock = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+
+function studyObjective(sectionId) {
   return {
-    id: `${sectionId}:leitura`,
-    label: 'Ler o módulo até o fim',
-    check: () => progress.read.includes(sectionId),
-    detail: () => readingDetail(sectionId)
+    id: `${sectionId}:tempo`,
+    label: `Estudar este módulo por ${STUDY_MINUTES} minutos`,
+    check: () => (progress.dwell[sectionId] || 0) >= STUDY_SECONDS,
+    detail: () => `${formatClock(Math.min(STUDY_SECONDS, progress.dwell[sectionId] || 0))} de ${formatClock(STUDY_SECONDS)}`
   };
 }
 
@@ -71,18 +74,18 @@ const lessonModules = [
   {
     id: 'sistema-operacional',
     title: 'Sistema operacional',
-    objectives: [readObjective('sistema-operacional')]
+    objectives: [studyObjective('sistema-operacional')]
   },
   {
     id: 'linux',
     title: 'Conhecendo o Linux',
-    objectives: [readObjective('linux')]
+    objectives: [studyObjective('linux')]
   },
   {
     id: 'arquivos',
     title: 'Arquivos e diretórios',
     objectives: [
-      readObjective('arquivos'),
+      studyObjective('arquivos'),
       {
         id: 'arquivos:navegar',
         label: 'Digitar cd e ls no terminal para navegar pelas pastas',
@@ -95,7 +98,7 @@ const lessonModules = [
     id: 'comandos',
     title: 'Comandos do terminal',
     objectives: [
-      readObjective('comandos'),
+      studyObjective('comandos'),
       {
         id: 'comandos:cinco',
         label: `Digitar ${COMMANDS_GOAL} comandos diferentes no terminal`,
@@ -108,7 +111,7 @@ const lessonModules = [
     id: 'usuarios',
     title: 'Usuários e permissões',
     objectives: [
-      readObjective('usuarios'),
+      studyObjective('usuarios'),
       {
         id: 'usuarios:construtor',
         label: 'Montar uma permissão no quadro “Monte a permissão”',
@@ -141,7 +144,8 @@ const lessonModules = [
         label: `Acertar pelo menos ${QUIZ_PASS} de ${baseQuestions.length} questões no quiz`,
         check: () => (saved.quizBest ?? 0) >= QUIZ_PASS,
         detail: () => (saved.quizBest != null ? `melhor resultado: ${saved.quizBest}/${baseQuestions.length}` : '')
-      }
+      },
+      studyObjective('pratique')
     ]
   },
   {
@@ -158,7 +162,8 @@ const lessonModules = [
         label: 'Concluir o expediente completo',
         check: () => career.finished,
         detail: () => `${completedTaskCount()}/${TOTAL_TASKS} tarefas`
-      }
+      },
+      studyObjective('carreira')
     ]
   }
 ];
@@ -175,38 +180,7 @@ lessonModules.forEach((module, index) => {
 });
 
 const allObjectives = lessonModules.flatMap((module) => module.objectives);
-const readingIds = lessonModules.filter((module) => module.objectives.some((o) => o.id.endsWith(':leitura'))).map((m) => m.id);
 const isDone = (objective) => progress.done.includes(objective.id);
-
-// O tempo mínimo de leitura cresce com o tamanho do texto. É generoso (20 palavras por segundo):
-// serve só para impedir que a seção conte como lida com uma rolagem rápida.
-const requiredReadSeconds = { ...progress.need };
-readingIds.forEach((id) => {
-  const section = document.getElementById(id);
-  if (!section) return; // o módulo está em outra página: vale o valor guardado
-  const words = (section.textContent || '').split(/\s+/).filter(Boolean).length;
-  requiredReadSeconds[id] = Math.min(40, Math.max(10, Math.round(words / 20)));
-  progress.need[id] = requiredReadSeconds[id];
-});
-const requiredFor = (id) => requiredReadSeconds[id] || 15;
-
-function readingDetail(id) {
-  if (progress.read.includes(id)) return '';
-  const required = requiredFor(id);
-  const spent = Math.min(required, progress.dwell[id] || 0);
-  const parts = [`${spent}s de ${required}s de leitura`];
-  if (!progress.seenEnd[id]) parts.push('role até o fim da seção');
-  return parts.join(' · ');
-}
-
-function refreshReadState() {
-  readingIds.forEach((id) => {
-    if (progress.read.includes(id) || !document.getElementById(id)) return; // só conta na página do próprio módulo
-    if (progress.seenEnd[id] && (progress.dwell[id] || 0) >= requiredFor(id)) {
-      progress.read.push(id);
-    }
-  });
-}
 
 function recordCommandUse() {
   const run = terminal.lastRun;
@@ -233,7 +207,7 @@ window.addEventListener('message', (event) => {
 function moduleState(module) {
   const done = module.objectives.filter(isDone).length;
   const total = module.objectives.length;
-  const started = done > 0 || module.objectives.some((o) => o.id.endsWith(':leitura') && progress.dwell[module.id]);
+  const started = done > 0 || (progress.dwell[module.id] || 0) > 0;
   return { done, total, complete: done === total, started };
 }
 
@@ -352,7 +326,6 @@ function renderProgress() {
 }
 
 function evaluateProgress({ announce = true } = {}) {
-  refreshReadState();
   const newly = allObjectives.filter((objective) => !isDone(objective) && objective.check());
   newly.forEach((objective) => progress.done.push(objective.id));
 
@@ -404,30 +377,12 @@ function buildProgressUi() {
   });
 }
 
-/* Posição de leitura: barra do topo e tempo de leitura do módulo da página */
-
-const pageSections = [...document.querySelectorAll('main section[id]')];
+/* Barra de rolagem no topo da página */
 
 function updateScrollState() {
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
   const scrolled = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
   progressBar.style.width = `${Math.min(100, Math.max(0, scrolled))}%`;
-
-  let reachedEnd = false;
-  readingIds.forEach((id) => {
-    if (progress.seenEnd[id]) return;
-    const section = document.getElementById(id);
-    if (!section) return;
-    const rect = section.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom <= window.innerHeight + 40) {
-      progress.seenEnd[id] = true;
-      reachedEnd = true;
-    }
-  });
-  if (reachedEnd) {
-    persist();
-    evaluateProgress();
-  }
 }
 
 let scrollFrame = null;
@@ -443,34 +398,73 @@ window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
 window.addEventListener('resize', scheduleScrollUpdate);
 window.addEventListener('load', updateScrollState);
 
-// A seção "sendo lida" é a que ocupa mais espaço visível na tela. Assim o fim de seções curtas
-// continua contando, mesmo quando o centro da tela já entrou na seção seguinte.
-function mostVisibleSectionId() {
-  let best = null;
-  let bestVisible = 0;
-  pageSections.forEach((section) => {
-    const rect = section.getBoundingClientRect();
-    const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-    if (visible > bestVisible) {
-      bestVisible = visible;
-      best = section.id;
-    }
-  });
-  return best;
+/* ------------------------------------------------------------------
+ * Relógio de estudo: 15 minutos ativos em cada módulo
+ * Só conta com a aba visível e a pessoa interagindo (rolar, clicar, digitar);
+ * depois de 2 minutos parada, o relógio pausa até ela voltar a mexer na página.
+ * ------------------------------------------------------------------ */
+
+const studyId = lessonModules.map((module) => module.id).find((id) => id !== 'videoaula' && document.getElementById(id));
+let lastActivity = Date.now();
+['pointerdown', 'pointermove', 'keydown', 'wheel', 'scroll', 'touchstart'].forEach((type) =>
+  window.addEventListener(
+    type,
+    () => {
+      lastActivity = Date.now();
+    },
+    { passive: true }
+  )
+);
+
+function createStudyClock() {
+  if (!studyId) return null;
+  const box = document.createElement('div');
+  box.className = 'estudo-relogio';
+  box.setAttribute('role', 'group');
+  box.setAttribute('aria-label', 'Tempo de estudo deste módulo');
+  box.innerHTML = `<span class="estudo-icone" aria-hidden="true">⏱</span>
+    <div class="estudo-corpo">
+      <strong class="estudo-tempo"></strong>
+      <span class="estudo-estado"></span>
+      <span class="estudo-trilho" aria-hidden="true"><span class="estudo-barra"></span></span>
+    </div>`;
+  document.body.append(box);
+  return box;
 }
 
-// Conta o tempo de leitura, só com a aba visível.
-let readingTicks = 0;
-setInterval(() => {
+const studyClock = createStudyClock();
+
+function renderStudyClock(active) {
+  if (!studyClock) return;
+  const spent = Math.min(STUDY_SECONDS, progress.dwell[studyId] || 0);
+  const finished = spent >= STUDY_SECONDS;
+  studyClock.querySelector('.estudo-tempo').textContent = `${formatClock(spent)} / ${formatClock(STUDY_SECONDS)}`;
+  studyClock.querySelector('.estudo-estado').textContent = finished
+    ? '✓ Módulo estudado'
+    : active
+      ? 'Contando seu estudo…'
+      : 'Pausado: sem atividade';
+  studyClock.querySelector('.estudo-barra').style.width = `${Math.round((spent / STUDY_SECONDS) * 100)}%`;
+  studyClock.classList.toggle('is-done', finished);
+  studyClock.classList.toggle('is-paused', !finished && !active);
+}
+
+let studyTicks = 0;
+function studyTick() {
   if (document.visibilityState !== 'visible') return;
   updateScrollState();
-  const id = mostVisibleSectionId();
-  if (!readingIds.includes(id) || progress.read.includes(id)) return;
-  progress.dwell[id] = (progress.dwell[id] || 0) + 1;
-  readingTicks += 1;
-  if (readingTicks % 5 === 0) persist();
-  evaluateProgress();
-}, 1000);
+  if (!studyId) return;
+  const active = Date.now() - lastActivity < IDLE_SECONDS * 1000;
+  if (active && (progress.dwell[studyId] || 0) < STUDY_SECONDS) {
+    progress.dwell[studyId] = (progress.dwell[studyId] || 0) + 1;
+    studyTicks += 1;
+    if (studyTicks % 5 === 0) persist();
+    evaluateProgress();
+  }
+  renderStudyClock(active);
+}
+setInterval(studyTick, 1000);
+renderStudyClock(true);
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') persist();

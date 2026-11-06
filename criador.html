@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criador · Linux Lab</title>
+    <meta
+      name="description"
+      content="Conheça o criador do Linux Lab, Henrique de Carvalho Tanaka."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Linux Lab" />
+    <meta property="og:title" content="Criador do Linux Lab" />
+    <meta
+      property="og:description"
+      content="Aula interativa com terminal simulado, desafios práticos e quiz sobre Linux."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/auth.js"></script>
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+    <link rel="stylesheet" href="css/conta.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="nav container" aria-label="Navegação principal">
+        <a href="index.html" class="brand">
+          Linux Lab
+          <span id="headerProgress" class="brand-progress" title="Progresso da aula">0%</span>
+        </a>
+        <ul class="menu" id="mainMenu">
+          <li><a href="videoaula.html">Videoaula</a></li>
+          <li><a href="modulo-1.html">Sistema operacional</a></li>
+          <li><a href="modulo-2.html">Linux</a></li>
+          <li><a href="modulo-3.html">Arquivos</a></li>
+          <li><a href="modulo-4.html">Comandos</a></li>
+          <li><a href="modulo-5.html">Permissões</a></li>
+          <li><a href="modulo-6.html">Prática</a></li>
+          <li><a href="modulo-7.html">Carreira</a></li>
+          <li><a href="glossario.html">Glossário</a></li>
+          <li><a href="criador.html">Criador</a></li>
+        </ul>
+        <div class="nav-tools">
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Escuro</span>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+            aria-controls="mainMenu"
+          >☰</button>
+        </div>
+      </nav>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar" class="progress-bar"></span>
+      </div>
+    </header>
+
+    <noscript>
+      <p class="noscript-banner">
+        Esta aula usa JavaScript para o terminal, o quiz e o acompanhamento do progresso.
+        Ative o JavaScript no navegador para usar todos os recursos.
+      </p>
+    </noscript>
+
+    <main id="conteudo" tabindex="-1">
+      <section id="criador" class="section">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Criador</p>
+            <h2>Quem fez o Linux Lab</h2>
+          </div>
+
+          <article class="criador-card" aria-labelledby="criador-nome">
+            <span class="criador-avatar" aria-hidden="true">HT</span>
+            <div class="criador-info">
+              <p class="criador-papel">Criador do Linux Lab</p>
+              <h3 id="criador-nome" class="criador-nome">Henrique de Carvalho Tanaka</h3>
+              <p>Criador e autor do Linux Lab, uma plataforma interativa para aprender os primeiros passos no Linux.</p>
+              <a
+                class="linkedin-btn"
+                href="https://www.linkedin.com/in/henriquedecarvalhotanaka/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="linkedin-logo" aria-hidden="true">in</span>
+                Ver perfil no LinkedIn
+                <span class="visually-hidden">(abre em outra aba)</span>
+              </a>
+            </div>
+          </article>
+
+          <div class="text-card criador-projeto">
+            <h3>Sobre o projeto</h3>
+            <p>O Linux Lab reúne, em um só lugar, o que um iniciante precisa para dar os primeiros passos no Linux:</p>
+            <ul class="check-list">
+              <li><strong>Videoaula narrada</strong> com demonstrações no Ubuntu e no terminal.</li>
+              <li><strong>Módulos</strong> sobre sistema operacional, arquivos, comandos e permissões.</li>
+              <li><strong>Terminal simulado</strong> para praticar sem instalar nada.</li>
+              <li><strong>Quiz e modo carreira</strong> para fixar o conteúdo.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <nav class="pager" aria-label="Navegação">
+        <div class="container pager-inner">
+          <a class="pager-link pager-prev" href="glossario.html"><small>← Anterior</small><strong>Glossário</strong></a>
+          <a class="pager-link pager-next" href="index.html"><small>Voltar</small><strong>Início da aula</strong></a>
+        </div>
+      </nav>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="footer-brand">Linux Lab</p>
+          <p>Aula 1 · Sistemas Operacionais: primeiros passos no Linux. Material educacional.</p>
+          <p>Criado por <a href="criador.html">Henrique de Carvalho Tanaka</a>.</p>
+        </div>
+        <div>
+          <p class="footer-title">Próxima aula</p>
+          <p>Aula 2 · Processos, instalação de programas e redirecionamentos (em breve).</p>
+        </div>
+        <div>
+          <p class="footer-title">Seu progresso</p>
+          <p>Fica salvo apenas neste navegador.</p>
+          <button type="button" id="clearProgress" class="footer-btn">Apagar meu progresso</button>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <a href="#conteudo">↑ Voltar ao topo</a>
+        <a href="glossario.html">Glossário</a>
+      </div>
+    </footer>
+
+    <div class="career-toasts" id="careerToasts" role="status" aria-live="polite"></div>
+
+    <script src="js/nucleo.js"></script>
+    <script src="js/videoaula.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/terminal-arquivos.js"></script>
+    <script src="js/terminal-comandos.js"></script>
+    <script src="js/terminal-interface.js"></script>
+    <script src="js/permissoes.js"></script>
+    <script src="js/carreira.js"></script>
+    <script src="js/progresso.js"></script>
+    <script src="js/usuario.js"></script>
+    <script src="js/inicio.js"></script>
+  </body>
+</html>

@@ -4,7 +4,8 @@
  * Armazenamento local (progresso do aluno)
  * ------------------------------------------------------------------ */
 
-const STORAGE_KEY = 'linux-lab:aula-1';
+// Cada conta tem o seu próprio progresso; visitante e contas não se misturam.
+const STORAGE_KEY = Auth.storageKey();
 
 function readStorage() {
   try {

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-publico>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entrar · Linux Lab</title>
+    <meta name="description" content="Entre ou crie sua conta no Linux Lab para salvar o seu progresso na aula de Linux." />
+    <meta name="theme-color" content="#0d1b2a" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b2a'/%3E%3Ctext x='10' y='42' font-family='monospace' font-size='28' font-weight='700' fill='%2314b87a'%3E%3E_%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="js/auth.js"></script>
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/tema-escuro.css" />
+    <link rel="stylesheet" href="css/conta.css" />
+  </head>
+  <body class="login-body">
+    <button id="themeToggle" class="theme-toggle login-theme" type="button" aria-pressed="false" aria-label="Mudar para o modo escuro">
+      <span class="theme-icon" aria-hidden="true">🌙</span>
+      <span class="theme-label">Escuro</span>
+    </button>
+
+    <main id="conteudo" class="login-wrap" tabindex="-1">
+      <section class="login-card" aria-labelledby="titulo-form">
+        <a href="index.html" class="login-brand">Linux Lab</a>
+        <h1 id="titulo-form">Entrar na sua conta</h1>
+        <p class="login-lead">Com uma conta, o seu progresso, o terminal e as conquistas ficam salvos separados dos de outras pessoas.</p>
+
+        <noscript>
+          <p class="auth-msg is-error">O login usa JavaScript. Ative o JavaScript no navegador para entrar.</p>
+        </noscript>
+
+        <p id="erroGeral" class="auth-msg is-error" role="alert" hidden></p>
+
+        <div id="jaConectado" hidden>
+          <p class="auth-msg is-ok">Você já está conectado como <strong id="jaConectadoNome"></strong>.</p>
+          <button id="btnContinuar" class="primary-btn btn-full" type="button">Continuar para a aula</button>
+          <div class="login-sep">ou</div>
+          <button id="btnTrocar" class="btn-ghost" type="button">Sair e usar outra conta</button>
+        </div>
+
+        <div id="formulariosArea">
+          <div class="tabs" role="tablist" aria-label="Entrar ou criar conta">
+            <button id="tabEntrar" role="tab" type="button" aria-selected="true" aria-controls="formEntrar">Entrar</button>
+            <button id="tabCriar" role="tab" type="button" aria-selected="false" aria-controls="formCriar" tabindex="-1">Criar conta</button>
+          </div>
+
+          <form id="formEntrar" role="tabpanel" aria-labelledby="tabEntrar" novalidate>
+            <div class="auth-field">
+              <label for="entrarEmail">E-mail</label>
+              <input id="entrarEmail" type="email" autocomplete="email" inputmode="email" required />
+            </div>
+            <div class="auth-field">
+              <label for="entrarSenha">Senha</label>
+              <div class="auth-input">
+                <input id="entrarSenha" type="password" autocomplete="current-password" required />
+                <button type="button" class="toggle-senha" data-alvo="entrarSenha" aria-pressed="false">Mostrar</button>
+              </div>
+            </div>
+            <label class="auth-check"><input id="entrarLembrar" type="checkbox" checked /> Manter conectado neste navegador</label>
+            <p id="erroEntrar" class="auth-msg is-error" role="alert" hidden></p>
+            <button type="submit" class="primary-btn btn-full">Entrar</button>
+          </form>
+
+          <form id="formCriar" role="tabpanel" aria-labelledby="tabCriar" novalidate hidden>
+            <div class="auth-field">
+              <label for="criarNome">Nome</label>
+              <input id="criarNome" type="text" autocomplete="name" maxlength="60" required />
+            </div>
+            <div class="auth-field">
+              <label for="criarEmail">E-mail</label>
+              <input id="criarEmail" type="email" autocomplete="email" inputmode="email" required />
+            </div>
+            <div class="auth-field">
+              <label for="criarSenha">Senha</label>
+              <div class="auth-input">
+                <input id="criarSenha" type="password" autocomplete="new-password" aria-describedby="criarSenhaDica" required />
+                <button type="button" class="toggle-senha" data-alvo="criarSenha" aria-pressed="false">Mostrar</button>
+              </div>
+              <p id="criarSenhaDica" class="auth-hint">Pelo menos 8 caracteres, com letras e números.</p>
+              <div class="forca" aria-live="polite">
+                <span class="forca-trilho"><span id="forcaBarra" class="forca-barra" data-nivel="0"></span></span>
+                <span id="forcaTexto" class="forca-texto"></span>
+              </div>
+            </div>
+            <div class="auth-field">
+              <label for="criarConfirma">Repita a senha</label>
+              <input id="criarConfirma" type="password" autocomplete="new-password" required />
+            </div>
+            <label id="migrarArea" class="auth-check" hidden>
+              <input id="criarMigrar" type="checkbox" checked /> Trazer para esta conta o progresso que já existe neste navegador
+            </label>
+            <label class="auth-check"><input id="criarLembrar" type="checkbox" checked /> Manter conectado neste navegador</label>
+            <p id="erroCriar" class="auth-msg is-error" role="alert" hidden></p>
+            <button type="submit" class="primary-btn btn-full">Criar conta</button>
+          </form>
+
+          <div class="login-sep">ou</div>
+          <button id="btnVisitante" class="btn-ghost" type="button">Continuar como visitante</button>
+
+          <p class="login-note">
+            As contas ficam salvas <strong>somente neste navegador</strong>, não em um servidor. Por isso não há
+            recuperação de senha por e-mail: use o backup do progresso, em “Minha conta”, para levar seus dados a outro
+            aparelho. Não reutilize a senha de outros serviços.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/login.js"></script>
+  </body>
+</html>
